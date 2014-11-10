@@ -25,7 +25,6 @@ Interfaces:
 - ORCA
 - Amber
 - mopac
-- 
 
 Constraints/Restraints:
 - cartesian space constraints
