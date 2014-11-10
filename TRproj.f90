@@ -1,0 +1,135 @@
+!**************************************************************************************
+!    Copyright 2013, 2014 Holger Kruse                                                *
+!                                                                                     *
+!    This file is part of Xopt.                                                       *
+!                                                                                     *
+!    Xopt is free software: you can redistribute it and/or modify                     *
+!    it under the terms of the GNU Lesser General Public License as published by      *
+!    the Free Software Foundation, either version 3 of the License, or                *
+!    (at your option) any later version.                                              *
+!                                                                                     *
+!    xopt is distributed in the hope that it will be useful,                        *
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of                   *
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                    *
+!    GNU Lesser General Public License for more details.                              *
+!                                                                                     *
+!    You should have received a copy of the GNU Lesser General Public License         *
+!    along with Xopt.  If not, see <http://www.gnu.org/licenses/>.                    *
+!                                                                                     *
+!**************************************************************************************
+ subroutine getcema(nat,xyzcm)
+implicit none
+integer i,nat
+real(8) xx,yy,zz
+real(8), intent(inout) :: xyzcm(3,nat)
+
+
+xx=0d0
+yy=0d0
+zz=0d0
+
+
+do i=1,nat
+ xx=xx+xyzcm(1,i)
+ yy=yy+xyzcm(2,i)
+ zz=zz+xyzcm(3,i)
+enddo
+
+xx=xx/nat
+yy=yy/nat
+zz=zz/nat
+
+do i=1,nat
+ xyzcm(1,i)=xyzcm(1,i)-xx
+ xyzcm(2,i)=xyzcm(2,i)-yy
+ xyzcm(3,i)=xyzcm(3,i)-zz
+enddo
+end subroutine
+
+
+! calculating the translational-rotational projection matrix
+! orthogonalize
+! project out 
+subroutine TRpr(nat,xyz,hess)
+implicit none
+integer i,nat,nat3
+real(8) cema(3,nat),xyz(3,nat)
+real(8) TR(nat*3,6)
+real(8) hess(nat*3*(nat*3+1)/2)
+
+integer iwork,lwork,info
+real(8) work(nat*3),S(nat*3),U(nat*3,6),VT(6,6)
+
+cema=xyz
+call getcema(nat,cema)
+
+nat3=nat*3
+do i=1,nat
+! translation
+  TR(3*(i-1)+1,1) = 1.0d0
+  TR(3*(i-1)+2,2) = 1.0d0
+  TR(3*(i-1)+3,3) = 1.0d0
+
+! rotation
+  TR(3*(i-1)+1,4) = 0.0d0
+  TR(3*(i-1)+2,4) = -cema(3,i)
+  TR(3*(i-1)+3,4) =  cema(2,i)
+  
+  TR(3*(i-1)+1,5) = cema(3,i)
+  TR(3*(i-1)+2,5) = 0.d0
+  TR(3*(i-1)+3,5) = -cema(1,i)
+   
+  TR(3*(i-1)+1,6) = -cema(2,i)
+  TR(3*(i-1)+2,6) = cema(1,i)
+  TR(3*(i-1)+3,6) = 0.d0
+enddo
+
+! orthogonalize
+! SVD -> U
+call DGESVD('S','S', nat3, 6, TR , nat3, S, U, nat3, VT, 6, WORK, -1, INFO )
+lwork=work(1)
+call DGESVD('S','S', nat3, 6, TR , nat3, S, U, nat3, VT, 6, WORK, lwork, INFO )
+! nearest ortho mat U*Vt
+call DGEMM('N','N',nat3,6,6,1d0,U,nat3,VT,6,0d0,TR,nat3)
+
+! projection
+call projMat(nat*3,6,TR,hess)
+
+end subroutine 
+
+
+
+subroutine projMat(n,m,pmat,fmat)
+implicit none
+integer i,pdim,n,m,j,k
+real(8) scrnm(n,m),scrnn(n,n)
+real(8), intent(in):: pmat(n,m)
+real(8), intent(inout) :: fmat(n*(n+1)/2)
+
+call packM(n,scrnn,fmat,'unpack') !fmat -> scrnn
+call dsymm('l','u',n,m,1.0d0,scrnn,n,pmat,n,0.0d0,scrnm,n) !scrnnm=scrnn*pmat
+call dgemm('n','t',n,n,m,1.0d0,scrnm,n,pmat,n,0.0d0,scrnn,n) !scrnn=scrnm*pmat'
+
+! fmat=fmat-scrnn-scrnn'
+
+do i=1,n
+ do j=1,i
+   k = i*(i-1)/2 + j
+   fmat(k) = fmat(k) - scrnn(i,j) - scrnn(j,i)
+ end do
+end do
+
+  call dgemm('t','n',n,m,n,1.0d0,scrnn,n,pmat,n,0.0d0,scrnm,n)
+  call dgemm('n','t',n,n,m,1.0d0,pmat,n,scrnm,n,0.0d0,scrnn,n)
+  
+! fmat=fmat+scrnn
+do i=1,n
+ do j=1,i
+   k = i*(i-1)/2 + j
+   fmat(k) = fmat(k) + scrnn(i,j)
+ end do
+end do
+
+
+end subroutine
+
