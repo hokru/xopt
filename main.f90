@@ -57,10 +57,6 @@ allocate(grad(3,nat),stat=istat)
 allocate(iat(nat),stat=istat)
 
 
-!allocate(dist(npair),stat=istat)
-!allocate(kj(npair*(npair+1)/2),stat=istat)
-!allocate(ki(npair*(npair+1)/2),stat=istat)
-
 if(freeze) allocate(ifrez(nat),stat=istat)
 if(restrain) then
  allocate(irest_bond(maxrestr,2))
@@ -121,7 +117,6 @@ select case(iopt)
  case(11:19)
    if(restrain) then
     call copt
-!    call copt_restrain
    else
     call copt
    endif
@@ -129,7 +124,6 @@ select case(iopt)
   call getanc
   if(restrain) then
     call ancopt(iiter)
-!    call ancopt_restrain(iiter)
   else
     call ancopt(iiter)
   endif
@@ -137,7 +131,6 @@ select case(iopt)
   nvar=npair
   call int_bonds_B
   call ancopt(iiter)
-!  call redintopt(iiter)
 end select
 
 call wrxyz('xopt.xyz')

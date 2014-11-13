@@ -103,8 +103,8 @@ b = 0
 k = 0
 hint = 0
 do i=nat3,1,-1
-!if(abs(e(i)).gt.1.d-8 .and.   k.le.nvar  .and.  totsym(i).eq.1)then
-if(abs(e(i)).gt.1.d-8 .and.   k.le.nvar)then
+!if(abs(e(i)).gt.1.d-8 .and. k.le.nvar  .and.  totsym(i).eq.1)then
+if(abs(e(i)).gt.1.d-8 .and.k.le.nvar)then
   k=k+1
   b(1:nat3,k)=h(1:nat3,i)
       if(.not.doTS)then
@@ -251,52 +251,49 @@ end subroutine
 
 
 
-!***********************************************************************
-!* address in packed array
-!***********************************************************************
+! address in packed array
+integer function padr(i1,i2)
+integer i1,i2,idum1,idum2
+idum1=max(i1,i2)
+idum2=min(i1,i2)
+padr=idum2+idum1*(idum1-1)/2
+return
+end
 
-      integer function padr(i1,i2)
-      integer i1,i2,idum1,idum2
-      idum1=max(i1,i2)
-      idum2=min(i1,i2)
-      padr=idum2+idum1*(idum1-1)/2
-      return
-      end
+subroutine sort(nat3,nvar,hess,b)
+implicit none
+integer nat3,nvar,ii,k,j,m,i
+real*8 hess(nvar*(nvar+1)/2),b(nat3,nat3),pp,sc1
+real*8 :: edum(nvar)
 
- subroutine sort(nat3,nvar,hess,b)
-      implicit none
-      integer nat3,nvar,ii,k,j,m,i
-      real*8 hess(nvar*(nvar+1)/2),b(nat3,nat3),pp,sc1
-      real*8 :: edum(nvar)
-
-      do k=1,nvar
-         edum(k)=hess(k+k*(k-1)/2)
-      enddo
+   do k=1,nvar
+      edum(k)=hess(k+k*(k-1)/2)
+   enddo
 !c sort
-      do 140   ii = 2, nvar
-         i = ii - 1
-         k = i
-         pp= edum(i)
-         do 120   j = ii, nvar
-            if (edum(j) .gt. pp) go to 120
-            k = j
-            pp= edum(j)
+ do 140   ii = 2, nvar
+    i = ii - 1
+    k = i
+    pp= edum(i)
+    do 120   j = ii, nvar
+       if (edum(j) .gt. pp) go to 120
+       k = j
+       pp= edum(j)
   120    continue
-         if (k .eq. i) go to 140
-         edum(k) = edum(i)
-         edum(i) = pp
-         do m=1,nat3
-            sc1=b(m,i)
-            b(m,i)=b(m,k)
-            b(m,k)=sc1
-         enddo
+     if (k .eq. i) go to 140
+     edum(k) = edum(i)
+     edum(i) = pp
+     do m=1,nat3
+        sc1=b(m,i)
+        b(m,i)=b(m,k)
+        b(m,k)=sc1
+     enddo
   140 continue
 
-      do k=1,nvar
-         hess(k+k*(k-1)/2)=edum(k)
-      enddo
+do k=1,nvar
+   hess(k+k*(k-1)/2)=edum(k)
+enddo
 
-      end
+end
 
 
 
