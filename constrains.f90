@@ -1,22 +1,3 @@
-!**************************************************************************************
-!    Copyright 2013, 2014 Holger Kruse                                                *
-!                                                                                     *
-!    This file is part of Xopt.                                                       *
-!                                                                                     *
-!    Xopt is free software: you can redistribute it and/or modify                     *
-!    it under the terms of the GNU Lesser General Public License as published by      *
-!    the Free Software Foundation, either version 3 of the License, or                *
-!    (at your option) any later version.                                              *
-!                                                                                     *
-!    xopt is distributed in the hope that it will be useful,                        *
-!    but WITHOUT ANY WARRANTY; without even the implied warranty of                   *
-!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                    *
-!    GNU Lesser General Public License for more details.                              *
-!                                                                                     *
-!    You should have received a copy of the GNU Lesser General Public License         *
-!    along with Xopt.  If not, see <http://www.gnu.org/licenses/>.                    *
-!                                                                                     *
-!**************************************************************************************
 ! handle constrains
 ! control file:
 ! $constr
@@ -43,114 +24,114 @@ integer, allocatable :: fdihed(:,:) ! atom index, fixed bonds
 end module constr
 
 ! THIS IS NOT USED
-subroutine XXgetconstrXX
-use constr
-implicit none
-character(80) aa,cc
-integer cb,ca,cd,n,s2i,nwords ! counters
-real(8) s2r
-
-nfbond=0
-nfangle=0
-nfdihed=0
-! read xopt.control
-open(44,file='xopt.control')
-
-! read and count
- do
-  read(44,'(a)',end=666) aa 
-  if(index(aa,'$constr').ne.0) then
-   do   
-     read(44,'(a)',end=666) aa 
-     call lower_case(aa)
-     if(index(aa,'bond').ne.0)  nfbond=nfbond+1
-     if(index(aa,'angle').ne.0) nfangle=nfangle+1
-     if(index(aa,'dihed').ne.0) nfdihed=nfdihed+1
-     exit ! break point
-   enddo ! "$constr loop"
-  endif
- enddo ! "xopt.control loop"
-666 continue
-
-! then allocate and rewind
-rewind(44)
-allocate(rbond(nfbond))
-allocate(rang(nfbond))
-allocate(rdih(nfbond))
-allocate(kbond(nfbond))
-allocate(kang(nfbond))
-allocate(kdih(nfbond))
-allocate(fbond(nfbond,2))
-allocate(fangle(nfbond,3))
-allocate(fdihed(nfbond,4))
-
-cb=0
-ca=0
-cd=0
-do
-  read(44,'(a)',end=667) aa
-  if(index(aa,'#').ne.0) cycle
-  if(index(aa,'$constr').ne.0) then
-   do
-     read(44,'(a)',end=667) aa
-     call lower_case(aa)
-     if(index(aa,'bond').ne.0) then ! bonds
-      cb=cb+1
-      call charXsplit(aa,cc,2)
-      fbond(cb,1)=s2i(cc)
-      call charXsplit(aa,cc,3)
-      fbond(cb,2)=s2i(cc)
-      call charXsplit(aa,cc,4)
-      rbond(cb)=s2i(cc)
-      if(nwords(cc).gt.4) then
-       call charXsplit(aa,cc,5)
-       kbond(cb)=s2i(cc)
-      endif
-     endif
-     if(index(aa,'angle').ne.0) then ! angles
-      ca=ca+1 
-      call charXsplit(aa,cc,2)
-      fangle(ca,1)=s2i(cc)
-      call charXsplit(aa,cc,3)
-      fangle(ca,2)=s2i(cc)
-      call charXsplit(aa,cc,4)
-      fangle(ca,3)=s2i(cc)
-      call charXsplit(aa,cc,5)
-      rang(ca)=s2r(cc)
-     endif
-     if(index(aa,'dihed').ne.0) then ! dihedrals
-      cd=cd+1
-      call charXsplit(aa,cc,2)
-      fdihed(cd,1)=s2i(cc)
-      call charXsplit(aa,cc,3)
-      fdihed(cd,2)=s2i(cc)
-      call charXsplit(aa,cc,4)
-      fdihed(cd,3)=s2i(cc)
-      call charXsplit(aa,cc,5)
-      fdihed(cd,4)=s2i(cc)
-      call charXsplit(aa,cc,6)
-      rdih(cd)=s2r(cc) 
-     endif
-    exit ! break point
-   enddo ! "$constr loop"
-  endif
- enddo ! "xopt.control loop"
-667 continue
-
-
-
-close(44)
-
-!debug
-print*,'constrains:'
-print*,'bonds',fbond,rbond,kbond
-print*,'angles',fangle,rang
-print*,'diheds',fdihed,rdih
-
-! setup variables
-
-
-end subroutine 
+!~ subroutine XXgetconstrXX
+!~ use constr
+!~ implicit none
+!~ character(80) aa,cc
+!~ integer cb,ca,cd,n,s2i,nwords ! counters
+!~ real(8) s2r
+!~ 
+!~ nfbond=0
+!~ nfangle=0
+!~ nfdihed=0
+!~ ! read xopt.control
+!~ open(44,file='xopt.control')
+!~ 
+!~ ! read and count
+!~  do
+!~   read(44,'(a)',end=666) aa 
+!~   if(index(aa,'$constr').ne.0) then
+!~    do   
+!~      read(44,'(a)',end=666) aa 
+!~      call lower_case(aa)
+!~      if(index(aa,'bond').ne.0)  nfbond=nfbond+1
+!~      if(index(aa,'angle').ne.0) nfangle=nfangle+1
+!~      if(index(aa,'dihed').ne.0) nfdihed=nfdihed+1
+!~      exit ! break point
+!~    enddo ! "$constr loop"
+!~   endif
+!~  enddo ! "xopt.control loop"
+!~ 666 continue
+!~ 
+!~ ! then allocate and rewind
+!~ rewind(44)
+!~ allocate(rbond(nfbond))
+!~ allocate(rang(nfbond))
+!~ allocate(rdih(nfbond))
+!~ allocate(kbond(nfbond))
+!~ allocate(kang(nfbond))
+!~ allocate(kdih(nfbond))
+!~ allocate(fbond(nfbond,2))
+!~ allocate(fangle(nfbond,3))
+!~ allocate(fdihed(nfbond,4))
+!~ 
+!~ cb=0
+!~ ca=0
+!~ cd=0
+!~ do
+!~   read(44,'(a)',end=667) aa
+!~   if(index(aa,'#').ne.0) cycle
+!~   if(index(aa,'$constr').ne.0) then
+!~    do
+!~      read(44,'(a)',end=667) aa
+!~      call lower_case(aa)
+!~      if(index(aa,'bond').ne.0) then ! bonds
+!~       cb=cb+1
+!~       call charXsplit(aa,cc,2)
+!~       fbond(cb,1)=s2i(cc)
+!~       call charXsplit(aa,cc,3)
+!~       fbond(cb,2)=s2i(cc)
+!~       call charXsplit(aa,cc,4)
+!~       rbond(cb)=s2i(cc)
+!~       if(nwords(cc).gt.4) then
+!~        call charXsplit(aa,cc,5)
+!~        kbond(cb)=s2i(cc)
+!~       endif
+!~      endif
+!~      if(index(aa,'angle').ne.0) then ! angles
+!~       ca=ca+1 
+!~       call charXsplit(aa,cc,2)
+!~       fangle(ca,1)=s2i(cc)
+!~       call charXsplit(aa,cc,3)
+!~       fangle(ca,2)=s2i(cc)
+!~       call charXsplit(aa,cc,4)
+!~       fangle(ca,3)=s2i(cc)
+!~       call charXsplit(aa,cc,5)
+!~       rang(ca)=s2r(cc)
+!~      endif
+!~      if(index(aa,'dihed').ne.0) then ! dihedrals
+!~       cd=cd+1
+!~       call charXsplit(aa,cc,2)
+!~       fdihed(cd,1)=s2i(cc)
+!~       call charXsplit(aa,cc,3)
+!~       fdihed(cd,2)=s2i(cc)
+!~       call charXsplit(aa,cc,4)
+!~       fdihed(cd,3)=s2i(cc)
+!~       call charXsplit(aa,cc,5)
+!~       fdihed(cd,4)=s2i(cc)
+!~       call charXsplit(aa,cc,6)
+!~       rdih(cd)=s2r(cc) 
+!~      endif
+!~     exit ! break point
+!~    enddo ! "$constr loop"
+!~   endif
+!~  enddo ! "xopt.control loop"
+!~ 667 continue
+!~ 
+!~ 
+!~ 
+!~ close(44)
+!~ 
+!~ !debug
+!~ print*,'constrains:'
+!~ print*,'bonds',fbond,rbond,kbond
+!~ print*,'angles',fangle,rang
+!~ print*,'diheds',fdihed,rdih
+!~ 
+!~ ! setup variables
+!~ 
+!~ 
+!~ end subroutine 
 
 
 ! restrain distance between atoms a and b
@@ -277,7 +258,6 @@ do i=1,ires
 enddo
 write(*,*) 
 write(*,'(a,F12.4)') 'Total E_restraint (kcal/mol): ',eneTOT*627.509
-!write(*,'(a,F18.8)') 'Total E_restraint (Eh): ',eneTOT
 write(*,*) 
 write(*,*) 
 
@@ -395,22 +375,23 @@ do i=1,ires
  di0=val0(i)
  di0grad=di360(di0)
 
-! write(33,'(2x,a,4I4,2x,F9.5,2x,F)') 'dihed ',aa,bb,cc,dd,irest_konst(ires,3),dih
+! write(*,'(2x,a,4I4,2x,F9.5,2x,2(F6.2,2x))') 'dihed ',aa,bb,cc,dd,irest_konst(ires,3),dihgrad,di0grad
 
 ! Check for the case that the torsion goes from the I to the IV quadrant and adjust accordingly
+! we check for "greater/less equal" since we might want to reach 0 as target value
 
 !  IV to I
 qI=.false.
 qIV=.false.
 shift=.false.
- if(dihgrad.gt.0.and.dihgrad.lt.90) qI=.true.
- if(di0grad.gt.270.and.di0grad.lt.360) qIV=.true.
+ if(dihgrad.ge.0.and.dihgrad.le.90) qI=.true.
+ if(di0grad.ge.270.and.di0grad.le.360) qIV=.true.
  if(qI.and.qIV) shift=.true.
 
  if(shift) then
-!  print*,'case1',dihgrad,di0grad
   dih=dih+2.0d0*pi
   rx=dih-di0
+!  print*,'case1',dihgrad,di0grad,rx
   goto 999
  endif
 
@@ -421,16 +402,19 @@ shift=.false.
 qI=.false.
 qIV=.false.
 shift=.false.
- if(di0grad.gt.0.and.di0grad.lt.90) qI=.true.
- if(dihgrad.gt.270.and.dihgrad.lt.360) qIV=.true.
+ if(di0grad.ge.0.and.di0grad.le.90) qI=.true.
+ if(dihgrad.ge.270.and.dihgrad.le.360) qIV=.true.
  if(qI.and.qIV) shift=.true.
 
  if(shift) then
-!   print*,'case2',dihgrad,di0grad
   dih=dih-2.0d0*pi
   rx=dih-di0
+!   print*,'case2',dihgrad,di0grad,rx
   goto 999
  endif
+
+
+
 
 999 continue
 
@@ -532,9 +516,9 @@ subroutine angle(xyz,aa,bb,cc,ang,anggrad)
 use constant
 implicit none
 integer aa,bb,cc
-real(8) xyz(3,*), v1(3),v2(3),lv1,lv2,uv1(3),uv2(3)
-real(8) t, tt,ang,anggrad
-real(8) cv,lcv
+real(8) xyz(3,*),v1(3),v2(3),lv1,lv2,uv1(3),uv2(3)
+real(8) t,tt,ang,anggrad
+real(8) cv(3),lcv
 
 v1=xyz(1:3,bb)-xyz(1:3,aa)
 v2=xyz(1:3,bb)-xyz(1:3,cc)
@@ -560,7 +544,7 @@ use constant
 implicit none
 integer aa,bb,cc,dd
 real(8) b1(3),b2(3),b3(3),n1(3),n2(3)
-real(8) un1(3),un2(3),ub2(2),m(3),um(3),dix,diy
+real(8) un1(3),un2(3),ub2(3),m(3),um(3),dix,diy
 real(8) dih,dihgrad,xyz(3,*)
 
  b1=xyz(1:3,aa)-xyz(1:3,bb)
@@ -671,12 +655,19 @@ do i=1,3
 enddo
 end subroutine
 
-real*8 function di360(x)
+real(8) function di360(x)
 implicit none
 real(8), parameter:: pi = 3.141592653589793d0
 real(8) x
 if(x<0.0d0) x=x+pi*2
 di360=x*180.0d0/pi
+end function
+
+real(8) function grad2rad(x)
+implicit none
+real(8), parameter:: pi = 3.141592653589793d0
+real(8) x
+grad2rad=x*pi/180.0d0
 end function
 
 real(8) function anggrad(x)
