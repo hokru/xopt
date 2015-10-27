@@ -31,6 +31,10 @@ Constraints/Restraints:
 - restrained primititves (form: U(x)=k(x)^2, x=bond/angle/torsion deviation)
 
 
+## USAGE
 
+see manual.pdf
+
+Adapt getgrad.f90 according to your own environment!
 
 
