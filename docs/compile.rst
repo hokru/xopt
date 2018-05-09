@@ -4,7 +4,7 @@ compile & install
 Xopt
 ****
 * Download or clone from `github <http://www.github.com/hokru/xopt>`_.
-* setup up compiler (gfortran,ifort,pgi) and math libraries variables in the Makefile
+* read ``INSTALL`` file and set compiler in Makefile
 * run ``make`` and copy binary ``xopt`` to a location declared in ``$PATH``.
 
 xopt.pgrad

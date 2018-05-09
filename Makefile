@@ -4,6 +4,7 @@
 #   xopt relies on various lapack and blas functions. However, speed is not crucial unless one
 #   runs very large molecules. Thus any library will do the trick. 
 #   OpenBLAS is an excellent and free threaded blas/lapack implementation.
+#   for Intel MKL use new mkl_rt, mkl link advisor or ifort -mkl=<..>
 #
 # GLOBAL SETTINGS
 USE_DEV=no
@@ -18,23 +19,24 @@ MOD:= mod
 PROG = ~/bin/xopt
 
 # choose compiler
-#USE_GNU=yes
-USE_PGI=no
-USE_INTEL=yes
+USE_GNU=yes
+#USE_PGI=no
+#USE_INTEL=yes
 
 # static/dynamic
 DO_STATIC=yes
 
 # set non-essential flags (at least -O2 recommened) 
 #FFLAGS= -O0 -g -traceback -check bounds  -openmp -fpe0 
-FFLAGS= -O2
+FFLAGS= -O2 
 
-# set BLAS/LAPCK paths for optimized libraries
- OPENBLAS = /usr/qc/openblas/
- #MKLROOT = /usr/qc/intel/mkl
- BLASLIB = -L$(OPENBLAS) -lopenblas #-lpthread
+## set BLAS/LAPCK paths for optimized libraries
+ OPENBLAS = /usr/qc/OpenBLAS/
+ BLASLIB = -L$(OPENBLAS) -lopenblas -lpthread
+
+# MKLROOT = ${HOME}/miniconda3/
+# BLASLIB =  -L${MKLROOT}/lib/ -Wl,--no-as-needed -lmkl_rt -lpthread -lm -ldl  # for 'new' single-dynamic MKL
 # BLASLIB  = -mkl=parallel                                   # for ifort
-# BLASLIB =  -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
 
 ###        examples      ###
 #  BLASLIB  = -L/local/intel_mkl -<see intel link advisor>    # MKL explicit
@@ -46,7 +48,7 @@ FFLAGS= -O2
 # set to "yes" after building them.
 USE_EXTRA=yes
 
-#USE_DEV=yes
+USE_DEV=yes
 
 #############################################################
 # DO NOT MODIFY BELOW UNLESS YOU KNOW WHAT YOU ARE DOING !  #
@@ -55,7 +57,7 @@ USE_EXTRA=yes
 ifeq ($(USE_DEV),yes)
 USE_GNU=yes
 USE_INTEL=no
-FFLAGS =  -fbounds-check -Og -g  -Wunused-dummy-argument -std=f2008 -fall-intrinsics
+FFLAGS =  -fbounds-check -Og -g  -Wunused-dummy-argument -std=f2008 -fall-intrinsics -fbacktrace
 #OPTIM =  -fopt-info-vec -fopt-info-loop  
 endif
 

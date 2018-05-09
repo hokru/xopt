@@ -173,7 +173,7 @@ use constant, only: au2ang
 use fiso, only: r8, stdout
 implicit none
 character(2) cc,ff
-character(80)  atmp,wx
+character(255)  atmp,wx
 character(*) infile
 real(r8) txyz(3,maxat),xx(5)
 real(r8) bohr
@@ -1127,7 +1127,7 @@ implicit none
 integer :: io
 character(*) filen
 
-open(newunit=io,file='dftb_in.hsd')
+open(newunit=io,file=filen)
 write(io,'(''Geometry = GenFormat {'')')
 write(io,'(i4,'' C'')') nat
 

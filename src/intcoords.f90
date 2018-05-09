@@ -22,7 +22,6 @@ integer i1,i2,j1,j2,nbond
 
 ! faster connectivity handling?
 integer :: inat(nat),ic  ! number of attached atoms
-!integer :: ipair12(nat,8) ! id of attached atoms, max 8
 integer :: ipair12(nat,1000) ! id of attached atoms, max 8
 
 allocate(bond(nat,nat),cn(nat))
