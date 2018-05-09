@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/xopt/badge/?version=latest)](http://xopt.readthedocs.io/en/latest/?badge=latest)
+
 # XOPT - an eXternal OPTimizer
 
 ## Purpose
@@ -37,9 +39,6 @@ Constraints/Restraints:
 - cartesian space constraints
 - restrained primititves (form: U(x)=k(x)^2, x=bond/angle/torsion deviation)
 
-
-
-## ToDo
 
 
 
