@@ -5,6 +5,7 @@
 #   runs very large molecules. Thus any library will do the trick. 
 #   OpenBLAS is an excellent and free threaded blas/lapack implementation.
 #   for Intel MKL use new mkl_rt, mkl link advisor or ifort -mkl=<..>
+#   MKL is available in Anaconda (miniconda). mkl and mkl-devel are needed.
 #
 # GLOBAL SETTINGS
 USE_DEV=no
@@ -48,7 +49,7 @@ FFLAGS= -O2
 # set to "yes" after building them.
 USE_EXTRA=yes
 
-USE_DEV=yes
+USE_DEV=no
 
 #############################################################
 # DO NOT MODIFY BELOW UNLESS YOU KNOW WHAT YOU ARE DOING !  #
