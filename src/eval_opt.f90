@@ -98,10 +98,9 @@ do
 !
   if(fstr(string,'maxiter')) call str_parse(string,2,maxiter)
   if(fstr(string,'maxd')) call str_parse(string,2,maxd)
-  if(fstr(string,'gconv')) call str_parse(string,2,gconv)
   if(fstr(string,'econv'))  call str_parse(string,2,econv)
-  if(fstr(string,'maxgrad')) call str_parse(string,2,econv)
-  if(fstr(string,'gnorm')) call str_parse(string,2,gnorm)
+  if(fstr(string,'maxgrad')) call str_parse(string,2,maxgrad)
+  if(fstr(string,'gconv')) call str_parse(string,2,gnorm)
 enddo
 666 continue
 close(io)
