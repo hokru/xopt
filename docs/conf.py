@@ -28,10 +28,10 @@ import os
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+#    'sphinxfortran.fortran_domain',
+#    'sphinxfortran.fortran_autodoc',
 extensions = [
     'sphinx.ext.coverage',
-    'sphinxfortran.fortran_domain',
-    'sphinxfortran.fortran_autodoc',
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
 ]
