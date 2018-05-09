@@ -6,10 +6,10 @@
 The goal is to proving a robust optimizer for quantum chemical and semi-empirical method
 that is suitable for large and complex molecules.
 
-## Note
-The version published along H. Kruse, J. Sponer PCCP, 2015,17, 1399-1410 is tagged as version 1.0 and
-also archived in the 'PCCP2015' branch. The current version is under continuous development and
-no warranty for correctness can be given.
+## Notes/Versions
+The current version (2.0 beta) is under continuous development and no warranty for correctness can be given.
+
+The legacy version (v1.0.1) is published in H. Kruse, J. Sponer PCCP, 2015,17, 1399-1410. 
 
 ## Capabilities
 
