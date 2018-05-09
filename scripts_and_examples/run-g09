@@ -1,0 +1,35 @@
+#!/bin/bash
+# original from CML, University of Muenster
+# modified by H.Kruse, IBP
+# ** adjust g09root and GAUSS_EXEDIR **
+# run as "run-g09 g.in g.out"
+
+if [ ! -r "$1" ] ; then
+  echo "Can't read file : $1" 1>&2
+  exit 1
+fi
+
+g09root=/usr/qc/
+export g09root
+
+GAUSS_EXEDIR=$g09root/g09.d01/g09
+export GAUSS_EXEDIR
+
+# Directory for GAUSSIAN Scratchfiles
+if [ -d /scratch/ ] ; then
+  GAUSS_SCRDIR=/scratch/$LOGNAME.$$
+else 
+  GAUSS_SCRDIR=/tmp/$LOGNAME.$$
+fi
+
+export GAUSS_SCRDIR
+test -d $GAUSS_SCRDIR || mkdir $GAUSS_SCRDIR
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$g09root/g09
+
+
+$GAUSS_EXEDIR/g09 <$1 >$2
+
+# clean up work area
+rm -rf $GAUSS_SCRDIR
+

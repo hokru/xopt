@@ -1,0 +1,5 @@
+making stringmod.o from stringmod.f90
+ifort -static -O  -c stringmod.f90 -o stringmod.o
+making gcp.o from gcp.f90
+ifort -static -O  -c gcp.f90 -o gcp.o
+ar rcs ../libgcp.a stringmod.o gcp.o 

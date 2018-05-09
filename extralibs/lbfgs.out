@@ -1,0 +1,3 @@
+making lbfgs.o from lbfgs.f
+ifort -static -O  -c lbfgs.f -o lbfgs.o
+ar rcs ../liblbfgs.a lbfgs.o 

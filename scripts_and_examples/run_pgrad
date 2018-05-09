@@ -1,0 +1,9 @@
+#!/bin/bash
+# 
+# manual execution of xopt.pgrad for testing purpose
+# run as "run_pgrad <n> "
+#
+P="/home/holger/bin/"
+NP=$1
+mpirun -by-node -n $NP -output-filename slave $P/xopt.pgrad 
+#mpirun -n $NP $P/xopt.pgrad 

@@ -1,0 +1,14 @@
+build/*.o
+extralibs/d3lib/*.o
+extralibs/gcplib/*.o
+extralibs/d3lib/*.mod
+extralibs/gcplib/*.mod
+extralibs/*.a
+extralibs/lbfgs/*.o
+mod/*.mod
+pgrad/*.o
+pgrad/*.mod
+version.dat
+xopt
+src/.sync
+MEMO

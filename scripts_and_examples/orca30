@@ -1,0 +1,6 @@
+#!/bin/bash
+# Parallel execution of orca may required to specify the absolute path to the binaries
+# This is archived through this script :)
+# modify path to orca binaries below and run as if you would call ORCA, e.g. "orca30 orca.in > orca.out"
+ORCA=/usr/qc/orca_3_0_3_linux_x86-64/
+$ORCA/orca $@

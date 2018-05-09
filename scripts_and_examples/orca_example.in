@@ -1,0 +1,4 @@
+# ENGRAD and xyzfile=xopt.xyz are required
+! PBE SVP SVP/J PAL4
+! ENGRAD 
+*xyzfile 0 1 xopt.xyz

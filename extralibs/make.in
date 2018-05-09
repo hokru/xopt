@@ -1,0 +1,3 @@
+#FC = gfortran -ffree-line-length-none
+FC = ifort -static #-g -traceback -debug minimal -check bounds
+FFLAGS= -O 

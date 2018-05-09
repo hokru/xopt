@@ -1,0 +1,32 @@
+REQUIREMENTS:
+- Fortran 2008 compiler: gfortran (4.8,4.9, 6.3 tested) or ifort (V.15 tested)
+- BLAS+LAPACK library
+
+modify the user settings for the Makefile.
+gfortran and ifort have been tested and setup. Best support is for gfortran.
+
+
+-------- add-on libraries------
+go to extralibs and edit make.in.
+Use the same compiler as planned for xopt.
+There should be no special flags necessary, -O is recommended.
+Run: InstallLibs.sh
+
+
+--------- XOPT -----------
+1a.
+ choose the compiler and any specific flags. The default "-O" is usually enough.
+1b.
+ Set the path for the blas and lapack libraries in BLASLIB.
+ xopt relies on various lapack and blas functions. However, speed is not crucial unless one
+ runs very large molecules (2000+ atoms) with very fast methods . Thus any library will do the trick. 
+ OpenBLAS is an excellent and free threaded blas/lapack implementation.
+2) run: make &> make.log
+  xopt will compile in mere seconds and should produce neither errors nor warnings.
+
+3) copy or link the xopt binary to a location inside your $PATH.
+
+4) run: xopt -h
+   This produces an overview of the options if the compilation was successful.
+
+5) Enjoy and curse loudly if something does not work ;-)

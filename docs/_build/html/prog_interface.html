@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>overview of external interfaces &#8212; Xopt 2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="code overview" href="code_overview.html" />
+    <link rel="prev" title="compile &amp; install" href="compile.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="overview-of-external-interfaces">
+<h1>overview of external interfaces<a class="headerlink" href="#overview-of-external-interfaces" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="customization">
+<h2>customization<a class="headerlink" href="#customization" title="Permalink to this headline">¶</a></h2>
+<p>Most system calls to programs can be modified at run-time using <code class="docutils literal"><span class="pre">$HOME/xoptrc</span></code>.
+The program&#8217;s default values are set in <code class="docutils literal"><span class="pre">default.f90</span></code>.</p>
+<p>All system calls (besides for conical intersection optimizations) are handled by <code class="docutils literal"><span class="pre">getgrad.f90</span></code>, if further
+modification are needed.</p>
+</div>
+<div class="section" id="custom-interface">
+<h2>custom interface<a class="headerlink" href="#custom-interface" title="Permalink to this headline">¶</a></h2>
+<p>The general external interface (GEI) option allows
+the user to call arbitrary programs and feed the gradient into <code class="docutils literal"><span class="pre">xopt</span></code></p>
+</div>
+<div class="section" id="orca">
+<h2>ORCA<a class="headerlink" href="#orca" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Requirement:</dt>
+<dd><ul class="first last simple">
+<li>input file: orca.in</li>
+<li><code class="docutils literal"><span class="pre">orca30</span></code> startup script to run orca (provided)</li>
+</ul>
+</dd>
+</dl>
+<p>It is necessary that the following input lines are included:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>! ENGRAD
+*xyzfile &lt;chrg&gt; &lt;mult&gt; xopt.xyz
+</pre></div>
+</div>
+</div>
+<div class="section" id="turbomole">
+<h2>Turbomole<a class="headerlink" href="#turbomole" title="Permalink to this headline">¶</a></h2>
+<p>Prepare a standard input using define. Supported are HF/DFT calculations using ridft and dscf, and calculations using the ricc2 module (eg. for MP2.).
+A &#8216;coord&#8217; file is automatically written and updated. If <code class="docutils literal"><span class="pre">$rij</span></code> is found in the control file, ridft will be called instead of dscf.</p>
+<dl class="docutils">
+<dt>Requirement:</dt>
+<dd><ul class="first last simple">
+<li>ridft/dscf/ricc2 in <code class="docutils literal"><span class="pre">$PATH</span></code></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="gaussian09">
+<h2>Gaussian09<a class="headerlink" href="#gaussian09" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Requirement:</dt>
+<dd><ul class="first last simple">
+<li>input file: g.in</li>
+<li>run-g09 startup script for Gaussian (provided)</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="mopac201x">
+<h2>Mopac201X<a class="headerlink" href="#mopac201x" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Requirement:</dt>
+<dd><ul class="first last simple">
+<li>binary name: mopac2012</li>
+<li>input directives using a SETUP file</li>
+</ul>
+</dd>
+</dl>
+<p>SETUP must contain:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="n">SCF</span> <span class="n">GRAD</span> <span class="n">XYZ</span> <span class="n">aux</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span><span class="n">PRECISION</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span><span class="n">MOS</span><span class="o">=-</span><span class="mi">99999</span><span class="p">,</span><span class="n">COMP</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>use of PRECISE is recommended</p>
+</div>
+<div class="section" id="gamess">
+<h2>gamess<a class="headerlink" href="#gamess" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="psi4">
+<h2>PSI4<a class="headerlink" href="#psi4" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="amber-sander">
+<h2>Amber (sander)<a class="headerlink" href="#amber-sander" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="conical-intersection-optimization">
+<h2>conical intersection optimization<a class="headerlink" href="#conical-intersection-optimization" title="Permalink to this headline">¶</a></h2>
+<p>Penalty function-based (no non-diabatic coupling) CI optimizer
+following Levine/Martinez DOI: 10.1021/jp0761618.
+We can do Gaussian, Turbomole(dscf,ricc2), Orca and numerical gradients.</p>
+<p>You need to make 2 directories named <code class="docutils literal"><span class="pre">stateJ.xopt`</span> <span class="pre">and</span> <span class="pre">``stateI.xopt</span></code>.
+Prepare the input for each state inside the directories.
+It should work for Turbomole, ORCA and G09 if you follow the general preparation guidelines above.</p>
+<p>We assume state I &lt; state J, e.g. J=I+1.</p>
+<p>The <code class="docutils literal"><span class="pre">xopt</span></code> output will print something like:</p>
+<p><code class="docutils literal"><span class="pre">gap[eV]:</span>&#160;&#160; <span class="pre">0.024</span>&#160;&#160; <span class="pre">penalty:</span>&#160; <span class="pre">13.1</span> <span class="pre">E(low):</span>&#160;&#160; <span class="pre">-546.9431436</span> <span class="pre">E(high):</span>&#160;&#160; <span class="pre">-546.9422645</span> <span class="pre">root</span> <span class="pre">flip:</span> <span class="pre">F</span></code>,
+where E(low) denotes the lower state (eg. groundstate) calculated as state I in stateI.xopt and E(high)
+as the higher state calculated as state J inside stateI.xopt.</p>
+<p>If at any stage during the optimization E(low)&gt;E(high) (I&gt;J)
+root flip will be set true (=T) and E(low/higher) will be interchange, e.g.
+E(low) will be the energy obtained in <code class="docutils literal"><span class="pre">stateJ.xopt</span></code>.
+This is checked for each optimization step individually and is not tracked through previous steps.</p>
+<p>The strategy to increase the penaly <span class="math">\(\sigma\)</span> is as follows:</p>
+<div class="math">
+\[\sigma= \sigma+(2\Delta E_{ij}/\alpha) \ ,\]</div>
+<p>where <span class="math">\(\Delta E_{ij}\)</span> is the energy gap between state I and J, $alpha$ the smoothing factor (see paper).
+$sigma$ is increased when <span class="math">\(\Delta E_{ij}\)</span> is larger than 1e-3 and the penalty function change <span class="math">\(\Delta F_{ij}\)</span> smaller than 5e-5.</p>
+<p>Note 1: for gaussian groundstate SA-CASSCF calculations add IOp(10/97=100) and IOp(5/97=100).
+It switches the CI vectors internally so one gets the proper groundstate gradient
+(e.g. for CASSCF(2,2,nroot=2,stateaverage)). Not sure about nroot &gt; 2.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">overview of external interfaces</a><ul>
+<li><a class="reference internal" href="#customization">customization</a></li>
+<li><a class="reference internal" href="#custom-interface">custom interface</a></li>
+<li><a class="reference internal" href="#orca">ORCA</a></li>
+<li><a class="reference internal" href="#turbomole">Turbomole</a></li>
+<li><a class="reference internal" href="#gaussian09">Gaussian09</a></li>
+<li><a class="reference internal" href="#mopac201x">Mopac201X</a></li>
+<li><a class="reference internal" href="#gamess">gamess</a></li>
+<li><a class="reference internal" href="#psi4">PSI4</a></li>
+<li><a class="reference internal" href="#amber-sander">Amber (sander)</a></li>
+<li><a class="reference internal" href="#conical-intersection-optimization">conical intersection optimization</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="compile.html" title="previous chapter">compile &amp; install</a></li>
+      <li>Next: <a href="code_overview.html" title="next chapter">code overview</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/prog_interface.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Holger Kruse.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/prog_interface.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

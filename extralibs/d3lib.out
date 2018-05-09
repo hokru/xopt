@@ -1,0 +1,9 @@
+making f3.o from f3.f90
+ifort -static -O  -c f3.f90 -o f3.o
+making dftd3.o from dftd3.f
+ifort -static -O  -c dftd3.f -o dftd3.o
+making copyc6.o from copyc6.f
+ifort -static -O  -c copyc6.f -o copyc6.o
+making hbsimple.o from hbsimple.f
+ifort -static -O  -c hbsimple.f -o hbsimple.o
+ar rcs ../libdftd3.a f3.o dftd3.o copyc6.o hbsimple.o 
