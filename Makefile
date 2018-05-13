@@ -102,11 +102,20 @@ OFPP= $(foreach dir, $(FPPSOURCES), $(addprefix $(SOURCEDIR)/, $(dir)))
 OF= $(foreach dir, $(FSOURCES), $(addprefix $(SOURCEDIR)/, $(dir)))
 OBJ := $(subst $(SOURCEDIR),$(BUILDDIR),$(OFPP:%.F90=%.o)) $(subst $(SOURCEDIR),$(BUILDDIR),$(OF:%.f90=%.o))
 
+# check git
+EXIST=$(shell if [ -d .git ]; then echo "yes"; else echo "no"; fi)
+#$(info I AM GIT? $(EXIST))
 
 # build and git info
 BUILID:=$(shell date)
+ifeq ($(EXIST),yes))
 GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
+else
+#GIT_VERSION := $(shell cat zip.version)
+GIT_VERSION := "2.0-dev"
+endif
 $(info Building: $(GIT_VERSION))
+
 
 
 #####  INTEL COMPILER  ##########

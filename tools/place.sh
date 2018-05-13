@@ -6,7 +6,7 @@
 x=$1
 
 HEAD="!**************************************************************************************
-!    Copyright 2013-2017 Holger Kruse                                                 *
+!    Copyright 2013-2018 Holger Kruse                                                 *
 !                                                                                     *
 !    This file is part of Xopt.                                                       *
 !                                                                                     *
