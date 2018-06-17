@@ -1,6 +1,7 @@
 REQUIREMENTS:
 - Fortran 2008 compiler: gfortran (4.8,4.9, 6.3 tested) or ifort (V.15 tested)
 - BLAS+LAPACK library
+- gcc >=4.6 needed
 
 modify the user settings for the Makefile.
 Best support is for gfortran.

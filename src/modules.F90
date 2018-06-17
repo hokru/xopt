@@ -3,7 +3,6 @@ module fiso
 #ifdef GNU
  use, intrinsic :: iso_fortran_env, only : &
      stdin=> input_unit, stdout=>output_unit,stderr=>error_unit, & ! I/O units, replaces non-def 0,5,6
-!     r8=> REAL64, r4=>REAL32
       i8=>INT64,i4=>INT32               , & 
       compiler_version                            ! nerdy info
 ! IEEE 754
@@ -12,6 +11,21 @@ module fiso
  integer, parameter :: qp = SELECTED_REAL_KIND(33,4931)
 
  integer, parameter :: io_debug=1111
+#elif GNU_LEGACY # 4.5
+ integer, parameter :: r4 = SELECTED_REAL_KIND(6,37)
+ integer, parameter :: r8 = SELECTED_REAL_KIND(15,307)
+ integer, parameter :: qp = SELECTED_REAL_KIND(33,4931)
+ integer, parameter :: io_debug=1111
+ integer, parameter :: i4 = selected_int_kind(4)
+ integer, parameter :: i8 = selected_int_kind(8)
+ integer, parameter :: stdin =0
+ integer, parameter :: stdout =6
+ integer, parameter :: stderr= 5
+ contains
+ character(7) function compiler_version()
+ implicit none
+  compiler_version='legacy gnu'
+ end function
 #else 
 ! for cases that do not have yet compiler_version like ifort 15 
   use, intrinsic :: iso_fortran_env, only : &

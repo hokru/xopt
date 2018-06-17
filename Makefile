@@ -23,6 +23,7 @@ PROG = ~/bin/xopt
 USE_GNU=yes
 #USE_PGI=no
 #USE_INTEL=yes
+#USE_CLANG=yes
 
 # static/dynamic
 DO_STATIC=yes
@@ -32,18 +33,17 @@ DO_STATIC=yes
 FFLAGS= -O2 
 
 ## set BLAS/LAPCK paths for optimized libraries
- OPENBLAS = /usr/qc/OpenBLAS/
- BLASLIB = -L$(OPENBLAS) -lopenblas -lpthread
+ OPENBLAS = /usr/qc/OpenBLAS.0.3_AVX/lib
+ MKLROOT = ${HOME}/miniconda3/
 
-# MKLROOT = ${HOME}/miniconda3/
-# BLASLIB =  -L${MKLROOT}/lib/ -Wl,--no-as-needed -lmkl_rt -lpthread -lm -ldl  # for 'new' single-dynamic MKL
-# BLASLIB  = -mkl=parallel                                   # for ifort
 
 ###        examples      ###
+#  BLASLIB =  -L${MKLROOT}/lib/ -Wl,--no-as-needed -lmkl_rt -lpthread -lm -ldl  # for 'new' single-dynamic MKL
 #  BLASLIB  = -L/local/intel_mkl -<see intel link advisor>    # MKL explicit
-#  BLASLIB  = /local/openblas_lib/lib/ -lopenblas             # OpenBLAS (may need -lpthread)
+   BLASLIB  = -L${OPENBLAS}/ -lopenblas -lpthread            # OpenBLAS (may need -lpthread)
 #  BLASLIB  = -L/usr/lib64 -llapack -lblas                    # native blas
 #  BLASLIB  = -mkl=parallel                                   # for ifort
+#  BLASLIB =  -L$(OPENBLAS) -lopenblas -lpthread -lm -ldl -lgfortran  # clang+openblas may need explicit linking
 
 ### EXTRALIBS (dftd3,gcp,lbfgs)
 # set to "yes" after building them.
@@ -132,7 +132,7 @@ endif
 
 ##### GFORTRAN #########
 ifeq ($(USE_GNU),yes)
-FC = gfortran 
+FC = gfortran  
 DFLAGS+= -DGNU
 FFLAGS+= -J$(MOD) -ffree-line-length-none
 LIBS+= $(BLASLIB)
@@ -141,6 +141,16 @@ LIBS+= $(BLASLIB)
   endif
 endif
 
+##### CLANG #########
+ifeq ($(USE_CLANG),yes)
+FC = clang
+DFLAGS+= -DCLANG
+FFLAGS+= -J$(MOD) -ffree-line-length-none
+LIBS+= $(BLASLIB)
+  ifeq ($(DO_STATIC),yes)
+   FC+= -static 
+  endif
+endif
 
 ##### PGI FORTRAN #############
 # PLEASE ADAPT THIS YOURSELF
