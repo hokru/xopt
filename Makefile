@@ -34,7 +34,8 @@ FFLAGS= -O2
 
 ## set BLAS/LAPCK paths for optimized libraries
  OPENBLAS = /usr/qc/OpenBLAS.0.3_AVX/lib
- MKLROOT = ${HOME}/miniconda3/
+# MKLROOT = ${HOME}/miniconda3/
+# MKLROOT = /usr/qc/intel/mkl2018/mkl/
 
 
 ###        examples      ###
@@ -44,6 +45,7 @@ FFLAGS= -O2
 #  BLASLIB  = -L/usr/lib64 -llapack -lblas                    # native blas
 #  BLASLIB  = -mkl=parallel                                   # for ifort
 #  BLASLIB =  -L$(OPENBLAS) -lopenblas -lpthread -lm -ldl -lgfortran  # clang+openblas may need explicit linking
+#   BLASLIB =   -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
 
 ### EXTRALIBS (dftd3,gcp,lbfgs)
 # set to "yes" after building them.

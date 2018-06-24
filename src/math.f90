@@ -289,7 +289,7 @@ use fiso, only: r8
 ! vector(3) norm
 implicit none
 real(r8) x(3),v
-v=dsqrt(dot_product(x,x))
+v=sqrt(dot_product(x,x))
 end subroutine
 
 
@@ -299,7 +299,7 @@ use fiso, only: r8
 implicit none
 real(r8) a(3),b(3),v,x(3)
 x=a-b
-v=dsqrt(dot_product(x,x))
+v=sqrt(dot_product(x,x))
 end subroutine
 
 

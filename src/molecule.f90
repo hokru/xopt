@@ -204,35 +204,45 @@ use fiso, only: r8
 use logic, only: debug
 use atomdata
 use constant, only: au2ang
+use parm, only: dist,npair,kj,ki
 implicit none
 integer, intent(in) :: nat,iat(nat)
 real(r8), intent(in) :: xyz(3,nat)
-integer :: i,j,io
+integer :: i,j,io,k
 real(r8) :: r1,r2,dbond,fac_bond
 character(2) :: esym
 integer, intent(out) :: bond(nat,nat),cn(nat)
+real(r8),parameter :: r_screen=50 ! bohr
 
+allocate(kj(npair),ki(npair))
+allocate(dist(npair))
 !fac_bond=1.1d0
 fac_bond=1.0d0
 ! full symmetric bond matrix
 bond=0
-do i=1,nat
- do j=1,nat
+k=0
+do i=1,nat-1
+ do j=i+1,nat
    if(i==j) cycle
-!   r1=(rcov(iat(i))+rcov(iat(j))) ! in A
+   k=k+1
    r1=(rcov3(iat(i))+rcov3(iat(j))) ! in A
-   r2=dbond(xyz(1,i),xyz(1,j))*au2ang
-   if(r2 <= r1*fac_bond) bond(i,j)=1
+   dist(k)=dbond(xyz(1,i),xyz(1,j))
+   kj(k)=j
+   ki(k)=i
+   r2=dist(k)*au2ang
+!   r2=dbond(xyz(1,i),xyz(1,j))*au2ang
+   if(r2 <= r1*fac_bond) then
+      bond(i,j)=1
+      bond(j,i)=1
+   endif
  enddo
 enddo
 
 
-
 if(debug) print*,'Writing xopt.bondmat'
- open(newunit=io,file='xopt.bondmat')
-  call printimat(io,nat,nat,bond,'bond matrix')
-!   write(io,*) bond
- close(io)
+open(newunit=io,file='xopt.bondmat')
+call printimat(io,nat,nat,bond,'bond matrix')
+close(io)
 
 ! coordination number (integer)
 cn=0
