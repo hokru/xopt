@@ -34,6 +34,7 @@ FFLAGS= -O2
 
 ## set BLAS/LAPCK paths for optimized libraries
  OPENBLAS = /usr/qc/OpenBLAS.0.3_AVX/lib
+ OPENBLAS = /usr/qc/OpenBLAS.0.3/lib
 # MKLROOT = ${HOME}/miniconda3/
 # MKLROOT = /usr/qc/intel/mkl2018/mkl/
 
