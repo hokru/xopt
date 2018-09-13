@@ -589,5 +589,7 @@ real(r8), allocatable :: Ginv(:,:)
 ! real(r8), allocatable :: A_int(:,:)
 real(r8), allocatable :: inthess(:,:)
 
+integer, allocatable :: cn(:)
+
 end module internals
 

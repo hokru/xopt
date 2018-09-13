@@ -438,6 +438,7 @@ end subroutine
 subroutine dihed(xyz,aa,bb,cc,dd,dih,dihgrad)
 use constant, only: pi
 use fiso, only: r8
+use ieee_arithmetic
 implicit none
 integer aa,bb,cc,dd
 real(r8) b1(3),b2(3),b3(3),n1(3),n2(3)
@@ -463,7 +464,7 @@ real(r8) dih,dihgrad,xyz(3,*)
  diy=DOT_PRODUCT(um,un2)
 
  dih=atan2(diy,dix)
-
+ if(ieee_is_nan(dih)) stop 'NaN in torsions'
 !  Quadrant    Angle              sin    cos    tan
 !----------------------------------------------------
 !  I           0    < α < π/2     > 0    > 0    > 0
@@ -477,7 +478,7 @@ real(r8) dih,dihgrad,xyz(3,*)
 
 !  print*,atan2(1.0,1.0)*180.0d0/pi
 !  print*,atan2(-1.0,0.0) *180.0d0/pi
-
+!  print*, dih,dix,diy ,'DIH'
 ! give results in 0 to 360 degree
  if(dih<0.0_r8) dih=dih+pi*2
  dihgrad=dih*180.0_r8/pi

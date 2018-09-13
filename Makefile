@@ -34,7 +34,7 @@ FFLAGS= -O2
 
 ## set BLAS/LAPCK paths for optimized libraries
  OPENBLAS = /usr/qc/OpenBLAS.0.3_AVX/lib
- OPENBLAS = /usr/qc/OpenBLAS.0.3/lib
+# OPENBLAS = /usr/qc/OpenBLAS.0.3/lib
 # MKLROOT = ${HOME}/miniconda3/
 # MKLROOT = /usr/qc/intel/mkl2018/mkl/
 
@@ -107,15 +107,14 @@ OBJ := $(subst $(SOURCEDIR),$(BUILDDIR),$(OFPP:%.F90=%.o)) $(subst $(SOURCEDIR),
 
 # check git
 EXIST=$(shell if [ -d .git ]; then echo "yes"; else echo "no"; fi)
-#$(info I AM GIT? $(EXIST))
+$(info I AM GIT? $(EXIST))
 
 # build and git info
 BUILID:=$(shell date)
 ifeq ($(EXIST),yes))
-GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
+ GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 else
-#GIT_VERSION := $(shell cat zip.version)
-GIT_VERSION := "2.0-dev"
+ GIT_VERSION := "2.0-dev"
 endif
 $(info Building: $(GIT_VERSION))
 

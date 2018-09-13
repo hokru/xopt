@@ -198,20 +198,21 @@ end select
 end function
 
 
-subroutine bondmatrix(nat,iat,xyz,bond,cn)
+subroutine bondmatrix(nat,iat,xyz,bond)
 ! bond matrix and coordinate number
 use fiso, only: r8
 use logic, only: debug
 use atomdata
 use constant, only: au2ang
 use parm, only: dist,npair,kj,ki
+use internals, only: cn
 implicit none
 integer, intent(in) :: nat,iat(nat)
 real(r8), intent(in) :: xyz(3,nat)
 integer :: i,j,io,k
 real(r8) :: r1,r2,dbond,fac_bond
 character(2) :: esym
-integer, intent(out) :: bond(nat,nat),cn(nat)
+integer, intent(out) :: bond(nat,nat)
 real(r8),parameter :: r_screen=50 ! bohr
 
 allocate(kj(npair),ki(npair))
@@ -230,7 +231,6 @@ do i=1,nat-1
    kj(k)=j
    ki(k)=i
    r2=dist(k)*au2ang
-!   r2=dbond(xyz(1,i),xyz(1,j))*au2ang
    if(r2 <= r1*fac_bond) then
       bond(i,j)=1
       bond(j,i)=1

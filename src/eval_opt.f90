@@ -230,7 +230,7 @@ if(maxarg.gt.0) then
    elseif(s2i(narg)==4) then
       hmodel='lindh' ! simplified Lindh
    elseif(s2i(narg)==5) then
-      hmodel='mass' ! simplified Lindh
+      hmodel='mass' ! mass-scaled
    else
       hmodel=trim(narg)
    endif

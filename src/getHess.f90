@@ -21,7 +21,6 @@ select case(hmodel)
     call getunitH()
     allocate(b(1,1),hdiag(1))
  case('mass') ! no gain from first tests
-   ! call getscaledH()
     call getunitH()
     call Hmass(chess,'nope')
     allocate(b(1,1),hdiag(1))
@@ -86,6 +85,7 @@ subroutine modlindh
 use parm, only: xyz,nat
 use fiso, only: r8
 use internals
+use logic, only: debug
 implicit none
 real(r8) dbond
 real(r8), parameter :: kb=0.45,ka=0.15,kt=0.005
@@ -104,7 +104,10 @@ enddo
 
 do i=1,frag_nh+frag_nb
   idx=idx+1
-  hdiag(idx)=0.2
+  a=frag_bcast(i,1)
+  b=frag_bcast(i,2)
+  rab=dbond(xyz(1,a),xyz(1,b))
+  hdiag(idx)=kb*lindh_rho(a,b,rab)
 enddo
 
 do i=1,int_na
@@ -129,6 +132,14 @@ do i=1,int_nt
   hdiag(idx)=kt*lindh_rho(a,b,rab)*lindh_rho(b,c,rbc)*lindh_rho(c,d,rcd)
 enddo
 
+! We cannot afford that an internal is not counting (close to zero) since
+! we have diagnoal non-redudant internals!
+do i=1,int_nb+int_na+int_nt+frag_nh+frag_nb
+if (hdiag(i)<0.05) then
+  if(debug) print*,'small Lindh hess value! Adjusting!',hdiag(i),i
+  hdiag(i)=0.05
+endif
+enddo
 
 end subroutine
 
@@ -175,12 +186,10 @@ use internals
 use atomdata, only: rcov
 implicit none
 integer idx,a,b,c,d
-! real(r8) hdiag(nints)
 real(r8) :: rab,rbc,cab,cbc,dbond
 real(r8) :: f1,f2,f3,f4,f5
-integer :: bond(nat,nat),cn(nat),nb
+integer :: nb
 
-call bondmatrix(nat,iat,xyz,bond,cn)
 
 idx=0
 do i=1,int_nb
@@ -194,6 +203,7 @@ do i=1,int_nb
   hdiag(idx)=f1*exp(-f2*(rab-cab))
 enddo
 
+! fragment + H-bonds
 do i=1,frag_nh+frag_nb
   idx=idx+1
   hdiag(idx)=0.2

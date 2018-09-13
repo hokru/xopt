@@ -10,7 +10,7 @@ use internals
 implicit none
 integer, intent(in) :: nat,iat(nat)
 real(r8), intent(in) :: xyz(3,nat)
-integer, allocatable :: bond(:,:),cn(:)
+integer, allocatable :: bond(:,:)
 integer :: kk,i,j,k,l
 real(r8) :: rab,ang,anggrad,dbond,agrad,di360,word2mb
 integer :: ii,jj,ll

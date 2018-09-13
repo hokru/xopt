@@ -17,7 +17,7 @@ call dsyev ('V','U',xvar,mat,xvar,eig,xx,-1,info)
 lwork=int(xx)
 allocate(aux(lwork))
 call dsyev ('V','U',xvar,mat,xvar,eig,aux,lwork,info)
-if(info/=0) print*,'Diagonalization failed !!',info
+if(info/=0) call error('Diagonalization failed !!<DiagSM/dsyev>')
 end subroutine
 
 
@@ -66,7 +66,7 @@ allocate(iaux(qi))
 liwork=qi
 call dsyevd('V','U',xvar,mat,xvar,eig,aux,lwork,iaux,liwork,info)
 
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM2] !!',info
+if(info/=0) call error('Diagonalization failed [subroutine DiagSM2] !!')
 end subroutine
 
 !******************************************************************************
@@ -101,7 +101,7 @@ liwork=qi
 call dsyevr('V','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM3] !!',info
+if(info/=0) call error('Diagonalization failed [subroutine DiagSM3] !!')
 end subroutine
 
 
@@ -132,7 +132,7 @@ liwork=qi
 call dsyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 !print*,'#eigenvalues: ',neig,' of ',nlow,' requested'
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM3_lowest] !!',info
+if(info/=0) call error('Diagonalization failed [subroutine DiagSM3_lowest] !!')
 end subroutine
 
 ! single-precision
@@ -276,7 +276,7 @@ end subroutine
 
 subroutine unitvec(x,e)
 use fiso, only: r8
-! unit vector of vector
+! unit vector e of vector x
 implicit none
 real(r8) x(3),e(3),t(3)
 t=DOT_PRODUCT(x,x)
@@ -385,15 +385,15 @@ matrix=backup
 end subroutine
 
 
-! get unit vector
 subroutine evec(a,b,e)
 use fiso, only: r8
+! get unit vector e of difference vector a-b
 implicit none
 real(r8), intent(in) :: a(3),b(3)
 real(r8), intent(out) :: e(3)
 real(r8) rab,dbond
 
-rab=dbond(a,b);
+rab=dbond(a,b)
 e(1)=(a(1)-b(1))/rab
 e(2)=(a(2)-b(2))/rab
 e(3)=(a(3)-b(3))/rab
