@@ -208,7 +208,7 @@ endif
 
 ! G A M E S S
 if(gamess) then
-  call IOgamess(trim(gmsin)//'.inp')
+!  call IOgamess(trim(gmsin)//'.inp')
   call system(trim(command_gms))
   call gmsgrad(nat,grad,energy,'xopt.job')
   call getd3gcp(nat,energy,grad)
