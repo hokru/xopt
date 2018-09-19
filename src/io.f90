@@ -457,7 +457,21 @@ else
 endif
 end
 
+subroutine readPSI4hess(n3,h,filen)
+use fiso, only: r8, stdout
+implicit none
+integer i,j,n3,io,nat,x
+real(r8) h(n3,n3)
 
+write(stdout,*) 'Reading <',trim(filen),'>'
+open(newunit=io,file=filen)
+  read(io,*) nat,x
+  if(nat*3/=n3) call error('wrong hessian dimension!')
+  do i=1,n3
+    read(io,*) h(i,1:3)
+  enddo
+close(io)
+end subroutine
 
 
 subroutine readORCAhess(n3,h,filen)

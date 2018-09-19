@@ -290,21 +290,29 @@ implicit none
 character(*) fname
 integer hlogic
 character(120) aa
+integer nstrings
 
 ! hlogic:
 ! 1 = TM (default)
 ! 2 = ORCA
 ! 3 = G09
+! 4 = PSI4
 
-hlogic=1
+hlogic=-1
 open(11,file=fname)
 do
   read(11,'(a)',end=999) aa
+  call cstring(aa,nstrings)
+  if(index(aa,'$hessian').ne.0) hlogic=1
   if(index(aa,'orca_hessian_file').ne.0) hlogic=2
   if(index(aa,'Force constants in Cartesian coordinates:').ne.0) hlogic=3
+  if(nstrings==2) hlogic=4 ! not 100% safe
 enddo
 999 close(11)
 if(hlogic==1) write(stdout,*) ' Found TM hessian'
 if(hlogic==2) write(stdout,*) ' Found ORCA hessian'
 if(hlogic==3) write(stdout,*) ' Found Gaussian09 hessian'
+if(hlogic==4) write(stdout,*) ' Found PSI4 hessian'
+
+if(hlogic<0) call error('Could not identify hessian type')
 end
