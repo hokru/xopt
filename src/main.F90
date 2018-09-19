@@ -136,9 +136,10 @@ endif
 if(readHess) then
     newhess=.false.
     call checkhess(hessname,istat)
-    if(istat==1) call rdhess(nat3,chess,hessname) ! TM
+    if(istat==1) call rdhess(nat3,chess,hessname)       ! TM
     if(istat==2) call readORCAhess(nat3,chess,hessname) ! ORCA
-    if(istat==3) call readG09hess(nat3,chess,hessname) ! G09
+    if(istat==3) call readG09hess(nat3,chess,hessname)  ! G09
+    if(istat==4) call readPSI4hess(nat3,chess,hessname) ! PSI4
 endif
 if(newhess) then
     call status1(timer)

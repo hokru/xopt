@@ -462,6 +462,7 @@ use fiso, only: r8, stdout
 implicit none
 integer i,j,n3,io,nat,x
 real(r8) h(n3,n3)
+character(*) filen
 
 write(stdout,*) 'Reading <',trim(filen),'>'
 open(newunit=io,file=filen)
@@ -471,6 +472,8 @@ open(newunit=io,file=filen)
     read(io,*) h(i,1:3)
   enddo
 close(io)
+call printmat(6,n3,n3,h,'H(PSI4)')
+stop
 end subroutine
 
 
