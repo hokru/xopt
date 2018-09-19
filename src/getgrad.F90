@@ -64,9 +64,9 @@ endif
 
 if(xtb) then
   call system(trim(command_xtb))
-  call xtbene(nat,energy,'xopt.job')
-  call xtbgrad(nat,grad,'grad')
-!  call tmgrad(nat,grad,energy)  ! xtb writes TM gradient/energy file
+!  call xtbene(nat,energy,'xopt.job')
+!  call xtbgrad(nat,grad,'grad')
+  call tmgrad(nat,grad,energy)  ! xtb writes TM gradient/energy file
   call cpfile('xopt.job','xopt.last','.')
   return
 endif
