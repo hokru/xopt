@@ -64,7 +64,9 @@ endif
 
 if(xtb) then
   call system(trim(command_xtb))
-  call tmgrad(nat,grad,energy)  ! xtb writes TM gradient/energy file
+  call xtbene(nat,energy,'xopt.job')
+  call xtbgrad(nat,grad,'grad')
+!  call tmgrad(nat,grad,energy)  ! xtb writes TM gradient/energy file
   call cpfile('xopt.job','xopt.last','.')
   return
 endif
@@ -251,6 +253,47 @@ if(e>0) call error(' no energy in GAMESS output found')
 close(io)
 
 end subroutine
+
+!*****************
+!* xTB  routines *
+!*****************
+subroutine xtbgrad(n,g,filen)
+use fiso, only: r8
+use strings
+implicit none
+integer n,i,io,j
+real(r8) g(3,n)
+character(255) aa
+character(*) filen
+
+open(newunit=io,file=filen)
+do i=1,n
+ do j=1,3
+   read(io,'(a)') aa
+   call str_parse(aa,2,g(j,i))
+ enddo
+enddo
+close(io)
+end subroutine
+
+subroutine xtbene(n,e,filen)
+use fiso, only: r8
+use strings
+implicit none
+integer n,i,io,j
+real(r8) e
+character(255) aa
+character(*) filen
+logical fstr
+
+open(newunit=io,file=filen)
+do 
+   read(io,'(a)',end=99) aa
+   if(fstr(aa,'total E'))  call str_parse(aa,4,e)
+enddo
+99 close(io)
+end subroutine
+
 
 
 !*****************
