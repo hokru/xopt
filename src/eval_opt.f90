@@ -192,6 +192,8 @@ if(maxarg.gt.0) then
    readHess=.true.
    hessname=trim(narg)
   endif
+  if(fstr(ftmp,'-hmass ')) do_hmass=.true.
+  if(fstr(ftmp,'-hnoshift ')) Doshift=.false.
   if(index(ftmp,'-restart ').ne.0) then
    restart=.true.
   endif
@@ -459,6 +461,7 @@ write(io,'(a)')'PROGRAM INTERFACES'
  write(io,'(a)')''
  write(io,'(a)')'HESSIANS'
  write(io,'(a)')'-rhess <filename>  read TM, ORCA or G09 hessian           '
+ write(io,'(a)')'-hmass             mass-weight hessian for ANC'
  write(io,'(a)')'-restart           read xopt.restart.hess + xopt.restart if present'
  write(io,'(a)')'-numhess           calculate input hessian numerically'
  write(io,'(a)')'-hmodel <int>      select model Hessian'

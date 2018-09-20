@@ -128,6 +128,8 @@ thermo_berend=.false.
 thermo_scale=.false.
 
 
+do_hmass=.false.
+
 ! catch & fix default for special case
 if(nat>3000) then
 call message('using unit Hessian for nat>3000, can be overwritten by request')

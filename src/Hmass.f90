@@ -1,7 +1,7 @@
 subroutine Hmass(h,string)
 ! take full Hessian h on input, mass-weight it, and output full Hessian again
 ! project trans/rot if string=project
-use fiso, only: r8
+use fiso, only: r8,stdout
 use parm, only : iat,xyz,nat,nat3,i,j,k
 use atomdata, only: ams
 implicit none
@@ -23,8 +23,10 @@ call packM(nat3,h,hv,'pack')
 
 if(string=='project') then
  call TRpr(nat,xyz,hv)
+write(stdout,'(2x,a)') 'T/R projecting hessian in mass-weight routine'
 endif
 
+write(stdout,'(2x,a)') 'mass-weighting Hessian'
 !unpack + mass-weight
 k=0
 do i=1,nat3

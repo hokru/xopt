@@ -59,6 +59,9 @@ enddo
 
 ! mass-weight 
 ! if(tsopt) call Hmass(h,'noproject')
+if (do_hmass) then
+ call Hmass(h,'noproject')
+endif
 
 if(debug) call debug1('DIAG',time)
 ! if(nat>2000) then
@@ -93,8 +96,8 @@ if(nat>2) then
 endif 
 
 ! remove negative eigenvalues by shifting
-if(Doshift) then
   damp=0.0_r8
+if(Doshift) then
   if(.not.tsopt) then
      damp = hmin - edum
      if(damp.lt.0) damp = 0.0_r8
@@ -104,11 +107,11 @@ if(Doshift) then
      endif
      enddo
   endif
-   write(*,'(2x,a,F8.2)') 'Hessian shift (cm-1) :', freqcm(damp)
-   write(*,'(2x,a)') 'lowest projected vib. freq (cm-1) of non mass-weighted input Hessian after shift:'
-   call printvib(nat3,e)
 Doshift=.false.
 endif
+write(*,'(2x,a,F8.2)') 'Hessian shift (cm-1) :', freqcm(damp)
+write(*,'(2x,a)') 'lowest projected vib. freq (cm-1) of non mass-weighted input Hessian after shift:'
+call printvib(nat3,e)
 
 ! Now make Bmatrix
 

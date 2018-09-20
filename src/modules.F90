@@ -139,6 +139,7 @@ end module
 !************************************************************
 
 module logic
+logical do_hmass
 logical echo ! printout
 logical debug
 logical relax !no calcs, just relax structure
