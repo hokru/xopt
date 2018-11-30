@@ -164,7 +164,7 @@ term=(deij**2+2.0_r8*alpha*deij)*ida2
 
 ! update sigma somewhat dynamically
 if(abs(fold-fij)<5e-5.and.abs(deij)>1e-3) then
-  write(*,'(12x,a,F7.3)') ' increasing sigma by',sigma*(2*deij/alpha)
+  write(stdout,'(12x,a,F7.3)') ' increasing sigma by',sigma*(2*deij/alpha)
   sigma=sigma+sigma*(2*deij/alpha)
   maxd=0.2
  if(sigma>sig_max) sigma=sig_max
@@ -203,10 +203,10 @@ xvec=gvec-ddot(nat3,gvec,1,uvec,1)*uvec
 !write(6,'(3x,a,E10.3,2x,E10.3,x,L)') '| perp gconv',dnrm2(nat3,xvec,1),0.005,dnrm2(nat3,xvec,1)<0.005
 
 if(deij<1.e-3.and.sigma>=50) then
-print*, 'Gap small and max. penalty reached. Probably wont get better, likely worse.'
-print*, 'Gap:',deij,' penalty:',sigma
-print*, 'E(I):',ei,'E(J):',ej
-print*, 'stopping and writing final geometry'
+write(stdout,*) 'Gap small and max. penalty reached. Probably wont get better, likely worse.'
+write(stdout,*) 'Gap:',deij,' penalty:',sigma
+write(stdout,*) 'E(I):',ei,'E(J):',ej
+write(stdout,*) 'stopping and writing final geometry'
 call wrxyz(trim(xyzfile))
 call error('ciopt request urgent stop')
 endif

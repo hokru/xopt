@@ -196,9 +196,9 @@ $(PROG): version.dat $(OBJ)
 
 version.dat:
 	@echo 'writing new version.dat'
-	@echo     " print*,  ' build date    : $(BUILID)     '"      > version.dat
-	@echo     " print*,  ' git version   : $(GIT_VERSION)'"      >> version.dat
-	@echo     " print*,  ' git repo      : https://github.com/hokru/xopt.git'"      >> version.dat
+	@echo     " write(stdout,'(a)')  ' build date    : $(BUILID)     '"      > version.dat
+	@echo     " write(stdout,'(a)')  ' git version   : $(GIT_VERSION)'"      >> version.dat
+	@echo     " write(stdout,'(a)')  ' git repo      : https://github.com/hokru/xopt.git'"      >> version.dat
 
 
 # make the MPI gradient helper binary

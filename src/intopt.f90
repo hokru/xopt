@@ -7,7 +7,7 @@ use parm, only: nat,nvar,gint,chess,grad,gnorm,hint,nat3,energy,iat,xyz
 use logic
 use popt
 use progs, only: xyzfile
-use fiso, only: r8
+use fiso, only: r8,stdout
 implicit none
 integer iter, info,c,i
 real(r8)  displ(nvar),dint(nvar),oldint(nvar)
@@ -41,9 +41,9 @@ oldd=0d0
 call touchlog
 
 ! main loop
-write(6,'(2x,a)') ''
-write(6,'(2x,a)') 'Starting internal coordinates geometry optimization'
-write(6,'(2x,a)') 'Iter          Energy         dE           gnorm         gmax           dnorm       maxdispl       lambda'
+write(stdout,'(2x,a)') ''
+write(stdout,'(2x,a)') 'Starting internal coordinates geometry optimization'
+write(stdout,'(2x,a)') 'Iter          Energy         dE           gnorm         gmax           dnorm       maxdispl       lambda'
 
 do iter=iiter,maxiter
 
@@ -128,7 +128,7 @@ call get_G_matrix()
 
 ! debug code
 !do i=1,nvar
-!  write(*,'(''ANC,Grad,Displ'',3F12.6)')ANC(i),gint(i),displ(i)
+!  write(stdout,'(''ANC,Grad,Displ'',3F12.6)')ANC(i),gint(i),displ(i)
 !enddo
 
 
@@ -150,7 +150,7 @@ else
 endif
 
 
-if(dE>=0d0) print*, 'Positive step detected!'
+if(dE>=0d0) write(stdout,*) 'Positive step detected!'
 
 select case(iconv)
  case default
@@ -183,7 +183,7 @@ end select
 
 enddo ! end main loop
 
-print*,'FAILED!'
+write(stdout,*)'FAILED!'
 return
 
 end subroutine 

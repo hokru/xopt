@@ -293,7 +293,7 @@ endif
 enddo
 
 if(tm.ne.otm) then
- write(*,'(2x,''|new transition mode: '',i2,'' with overlap: '',F5.2,''%'')') tm,(oS*100)
+ write(stdout,'(2x,''|new transition mode: '',i2,'' with overlap: '',F5.2,''%'')') tm,(oS*100)
  if(oS*100.le.40) then
   call warning('safety stop: please (re-)select mode by hand!')
  endif
@@ -348,7 +348,7 @@ endif
 enddo
 
 if(tm.ne.otm) then
- write(*,'(2x,''|new transition mode: '',i2,'' with overlap: '',F5.2,''%'')') tm,(oS*100)
+ write(stdout,'(2x,''|new transition mode: '',i2,'' with overlap: '',F5.2,''%'')') tm,(oS*100)
  if(oS*100.le.40) then
   call warning('safety stop: please (re-)select mode by hand!')
  endif
@@ -361,7 +361,7 @@ end subroutine eigovl_int
 ! basically from mopac, like everyone does it?!
 ! find lamda that minimizes all other modes than tsmode
 subroutine NRLamda(F,he,nvar,lamda,tsmode)
-use fiso, only: r8
+use fiso, only: r8, stdout
 ! set tsmode < 1 to minimize all nvar
 implicit none
 integer nvar,i,j,tsmode,k,ts1,maxiter
@@ -397,7 +397,7 @@ do j=1,1000
       ff1 = ff1 - 1.0_r8
       temp = fff/ff1
       lamda = lamda - temp
-      write(*,'(''lambda: '',d14.6,'' iter: '',i5,'' conv: '',d14.6)') lamda,j,temp
+      write(stdout,'(''lambda: '',d14.6,'' iter: '',i5,'' conv: '',d14.6)') lamda,j,temp
       if (abs(temp)< toll) then
         conv=.true.
         exit
@@ -410,11 +410,11 @@ return
 123 continue
 if(conv) then
   if(lamda>he(ts1).or.(he(ts1)>0.and.lamda>0)) then
-    print*,'lamda, eigenvalue',lamda,he(ts1)
+    write(stdout,*) 'lamda, eigenvalue',lamda,he(ts1)
     goto 222 ! try bisect 1 time 
     call error('unacceptable lambda!') ! oh no.. :-(
   else
-      print*,'final lambda', lamda
+      write(stdout,*) 'final lambda', lamda
       return ! all good! :-)
   endif
 endif
@@ -423,11 +423,11 @@ endif
 222 continue
  
 if (bisect) then
-print*,'bisecting lambda failed. Potentially unreliable lambda!'
+  write(stdout,*) 'bisecting lambda failed. Potentially unreliable lambda!'
 return
 ! call error('P-RFO lamda bisec failed. Unable to continue') ! we tried before
 endif 
-print*,'trying to bisect lamda'
+write(stdout,*) 'trying to bisect lamda'
 bisect=.true.
 
 l1=0.0
@@ -456,7 +456,7 @@ do k=1,maxiter
       endif
 
 enddo
-print*,'bisect boundaries:',l1,l2
+write(stdout,*) 'bisect boundaries:',l1,l2
 
 if(root) then
 ! print*,'bisect boundaries:',l1,l2

@@ -327,7 +327,7 @@ end subroutine fastSR1BFGS
 
 subroutine hessdamp(nvar,hess,hold,gnorm)
 ! Hessian damping (not used)
-use fiso, only: r8
+use fiso, only: r8,stdout
 implicit none
 integer nvar
 real(r8) Hd(nvar*(nvar+1)/2),hess(nvar*(nvar+1)/2),hold(nvar*(nvar+1)/2)
@@ -347,7 +347,7 @@ select case(ig)
  case(3)
  damp=0_r8
 end select
-write(*,'(''damping hessian: '',F6.3)') damp
+write(stdout,'(''damping hessian: '',F6.3)') damp
 Hd=(hess+damp*hold)/(1.0_r8+damp)
 hess=Hd
 end subroutine

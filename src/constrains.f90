@@ -325,7 +325,7 @@ endif
  di0=val0(i)
  di0grad=di360(di0)
 
-! write(*,'(2x,a,4I4,2x,F9.5,2x,2(F6.2,2x))') 'dihed ',aa,bb,cc,dd,irest_konst(ires,3),dihgrad,di0grad
+! write(stdout,'(2x,a,4I4,2x,F9.5,2x,2(F6.2,2x))') 'dihed ',aa,bb,cc,dd,irest_konst(ires,3),dihgrad,di0grad
 
 ! Check for the case that the torsion goes from the I to the IV quadrant and adjust accordingly
 ! we check for "greater/less equal" since we might want to reach 0 as target value

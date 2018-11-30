@@ -33,12 +33,12 @@ write(stdout,'(a)',advance="no") ' Date: '
 call timestamp()
 write(stdout,'(2a)') ' Host:   ',trim(host)
 write(stdout,'(2a)') ' working directory: ',trim(workdir)
-print*,'             '
+write(stdout,'(a)') ''
 include '../version.dat'
-print*,'             '
+write(stdout,*)'             '
 write(stdout,'(2a)') ' compiler version: ',compiler_version()
-print*,'             '
-print*,'             '
+write(stdout,'(a)') ''
+write(stdout,'(a)') ''
 ! write(stdout,'(2a)') ' compiler options: ',compiler_options() ! ugly
 call p_gcpd3
 end subroutine head
@@ -88,6 +88,9 @@ integer io
 logical da
 character(120) aa
 
+if(do_output) then
+ write(stdout,'(2a)') ' output: ',trim(output_name)
+endif
 io=stdout
 
 write(io,'(a)')
@@ -250,15 +253,13 @@ end subroutine pchead
 
 subroutine pciter(iter,e,de,gnorm,gmax,dnorm,disp,lam,EE,GG,GM,DM,prede)
 ! prints values for the optimization step
-use fiso, only:stdout,r8
+use fiso, only: stdout,r8
 implicit none
 real(r8), intent(in) :: e,de,disp,gmax,lam,dnorm,gnorm,prede
 integer, intent(in) :: iter
 logical, intent(in) :: EE,GG,GM,DM
-integer :: io
 
-io=stdout
-write(io,'(2x,i4,F18.8,2x,ES10.3,1x,L1,2x,F8.5,1x,L1,2x,ES10.3,1x,L1,2x,F7.3,2x,F9.4,1x,L1,2x,ES9.2,2x,ES9.2)') &
+write(stdout,'(2x,i4,F18.8,2x,ES10.3,1x,L1,2x,F8.5,1x,L1,2x,ES10.3,1x,L1,2x,F7.3,2x,F9.4,1x,L1,2x,ES9.2,2x,ES9.2)') &
              iter,e,      de       ,EE,   gnorm,  GG,   gmax,     GM,    dnorm,disp,DM,lam,prede
 end subroutine pciter
 
@@ -281,7 +282,7 @@ end subroutine
 subroutine prtime(io)
 ! prints elapsed time
 use timing, only: elapsed
-use fiso,only: r8
+use fiso,only: r8,stdout
 implicit none
 real(r8) s
 integer d,h,m
@@ -289,7 +290,7 @@ integer io
 
 call timedecomp(elapsed,s,m,h,d)
 
-write(io,'("wall-time: ",1x,i3," d",1x,i3," h",1x,i3," m",f5.1," s")') d,h,m,s
+write(stdout,'("wall-time: ",1x,i3," d",1x,i3," h",1x,i3," m",f5.1," s")') d,h,m,s
 end subroutine prtime
 
 subroutine timedecomp(tin,s,m,h,d)
@@ -543,7 +544,7 @@ subroutine printvib(nat3,e)
 ! subroutine printvib(nat3,e,max)
 ! print frequency informations
 ! maximal nmax (optional, default=18)
-use fiso, only: r8
+use fiso, only: r8,stdout
 implicit none
 integer, intent(in)  :: nat3
 real(r8), intent(in) :: e(nat3)
@@ -565,16 +566,16 @@ loop=0
 n=nat3
 if(n<=6) then
    do i=1,n
-      write(*,'(4x,I2,'':'',1x,F8.2)') i,freqcm(e(i))
+      write(stdout,'(4x,I2,'':'',1x,F8.2)') i,freqcm(e(i))
    enddo
 elseif(n<=12) then
    if(mod(n,2)==0) loop=n/2
    if(mod(n,2)==1) loop=(n-1)/2
    do i=1,loop
       ii=i+loop
-      write(*,'(2x,2(2x,I2,'':'',1x,F8.2))') i,freqcm(e(i)),ii,freqcm(e(ii))
+      write(stdout,'(2x,2(2x,I2,'':'',1x,F8.2))') i,freqcm(e(i)),ii,freqcm(e(ii))
    enddo
-   if(mod(n,2)==1)  write(*,'(14x,4x,I2,'':'',1x,F8.2)') n,freqcm(e(n))
+   if(mod(n,2)==1)  write(stdout,'(14x,4x,I2,'':'',1x,F8.2)') n,freqcm(e(n))
 else
    if(nat3>nmax) n=nmax
    if(mod(n,3)==0) loop=n/3
@@ -582,9 +583,9 @@ else
    do i=1,loop
       ii=i+loop
       iii=ii+loop
-      write(*,'(2x,3(2x,I2,'':'',1x,F8.2))') i,freqcm(e(i)),ii,freqcm(e(ii)),iii,freqcm(e(iii))
+      write(stdout,'(2x,3(2x,I2,'':'',1x,F8.2))') i,freqcm(e(i)),ii,freqcm(e(ii)),iii,freqcm(e(iii))
    enddo
-   if(mod(nat3,3)==1)  write(*,'(14x,4x,I2,'':'',1x,F8.2)') n,freqcm(e(n))
+   if(mod(nat3,3)==1)  write(stdout,'(14x,4x,I2,'':'',1x,F8.2)') n,freqcm(e(n))
 endif
 
 end subroutine

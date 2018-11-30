@@ -90,8 +90,8 @@ write(stdout,'(a)') ''
 if(nat>2) then
  if(nvar/=nat3-6) then
   call exclaim ('possible incomplete Hessian!')
-  write(*,'(2x,a,I5)') 'expected: degrees of freedom(3N-6) : ',nat3-6
-  write(*,'(a)') ''
+  write(stdout,'(2x,a,I5)') 'expected: degrees of freedom(3N-6) : ',nat3-6
+  write(stdout,'(a)') ''
  endif
 endif 
 
@@ -109,8 +109,8 @@ if(Doshift) then
   endif
 Doshift=.false.
 endif
-write(*,'(2x,a,F8.2)') 'Hessian shift (cm-1) :', freqcm(damp)
-write(*,'(2x,a)') 'lowest projected vib. freq (cm-1) of non mass-weighted input Hessian after shift:'
+write(stdout,'(2x,a,F8.2)') 'Hessian shift (cm-1) :', freqcm(damp)
+write(stdout,'(2x,a)') 'lowest projected vib. freq (cm-1) of non mass-weighted input Hessian after shift:'
 call printvib(nat3,e)
 
 ! Now make Bmatrix
@@ -136,7 +136,7 @@ if(abs(e(i)).gt.1.e-8_r8 .and.k.le.nvar)then
 enddo
 
 if(k/=nvar) then
- print*,nvar,k
+ write(stdout,*) nvar,k
  call error('k/=nvar! error')
 endif
 

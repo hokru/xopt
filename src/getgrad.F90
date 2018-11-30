@@ -4,7 +4,7 @@ use parm
 use logic
 use progs
 use constant, only: au2ang
-use fiso, only: r8
+use fiso, only: r8,stdout
 implicit none
 character(255) aa,bb
 character(255) aaa
@@ -834,7 +834,7 @@ end subroutine
 ! not used
 ! maybe switch on/off flags here?
 subroutine get_internal_numgrad(e,g)
-use fiso, only: r8
+use fiso, only: r8,stdout
 use parm, only: i,j,nat,iat,xyz,energy
 use logic, only: numgrad
 implicit none
@@ -845,7 +845,7 @@ step=0.005_r8
 xyz0=xyz
 numgrad=.false.
 do i=1,nat
-write(*,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', nat,']'
+write(stdout,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', nat,']'
  do j=1,3
    xyz(j,i)=xyz(j,i)+step
    call newxyz(nat,iat,xyz)
@@ -924,7 +924,7 @@ end subroutine
 ! usefull for CIopt calculations where you can get 2 states at once
 subroutine get_numgrad2(e1,e2,g1,g2)
 use parm, only: xyz,i,j,k,l,nat,iat
-use fiso, only: r8
+use fiso, only: r8,stdout
 !use logic
 use progs, only: command_gei
 implicit none
@@ -937,7 +937,7 @@ call system(trim(command_gei))
 call ene2(e1,e2)
 
 do i=1,nat
-write(*,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', nat,']'
+write(stdout,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', nat,']'
  do j=1,3
    xyz(j,i)=xyz(j,i)+step
    call newxyz(nat,iat,xyz) ! write new xopt.xyz

@@ -18,7 +18,7 @@ call get_environment_variable('HOME', homedir)
 sfile=trim(homedir)//'/.xoptrc'
 inquire(file=sfile,exist=da)
 if(da) then
-  write(*,fs) 'Found global config: '//trim(sfile)
+  write(stdout,fs) 'Found global config: '//trim(sfile)
 endif
 
 open(newunit=io,file=trim(sfile))
@@ -113,7 +113,7 @@ use logic
 use popt
 use progs, only: usrscr,prog_flags
 use MDdat
-use fiso, only: r8, stdout
+use fiso, only: r8, stdout,stdout_default
 implicit none
 integer i,maxarg
 character(80), allocatable :: arg(:)
@@ -344,6 +344,13 @@ if(maxarg.gt.0) then
   if(fstr(ftmp,'-dvv_up ')) dvv_up=s2r(narg)  ! uphild threshold to stop (def: 5e-6 au)
 
   ! <<<<<         special keywords           >>>>>>
+  if(fstr(ftmp,'-o ')) then
+   do_output=.true.
+   output_name=trim(narg)
+   if(index(narg,'-')==1) call error('invalid output name')
+   if(len(trim(output_name)) <= 2) call error(' output name must be longer than 2 characters !')
+  endif
+  
   ! move to COM and rotate to principle axis frame
   if(fstr(ftmp,'-orient')) orient=.true.
 

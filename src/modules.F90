@@ -1,8 +1,9 @@
 module fiso
+
 ! wrapper around iso_fortran_env
 #ifdef GNU
  use, intrinsic :: iso_fortran_env, only : &
-     stdin=> input_unit, stdout=>output_unit,stderr=>error_unit, & ! I/O units, replaces non-def 0,5,6
+     stdin=> input_unit, stdout_default=>output_unit,stderr=>error_unit, & ! I/O units, replaces non-def 0,5,6
       i8=>INT64,i4=>INT32               , & 
       compiler_version                            ! nerdy info
 ! IEEE 754
@@ -19,7 +20,7 @@ module fiso
  integer, parameter :: i4 = selected_int_kind(4)
  integer, parameter :: i8 = selected_int_kind(8)
  integer, parameter :: stdin =0
- integer, parameter :: stdout =6
+ integer, parameter :: stdout_default =6
  integer, parameter :: stderr= 5
  contains
  character(7) function compiler_version()
@@ -43,6 +44,8 @@ module fiso
   compiler_version='unknown'
  end function
 #endif
+
+integer(r4) :: stdout
 
 !real(r8), parameter :: eins=1.0_r8,nul=0.0_r8
 !note:
@@ -183,6 +186,10 @@ logical do_float
 
 ! internals
 logical int_deloc
+
+! output file
+character(255) :: output_name
+logical :: do_output
 
 end module logic
 

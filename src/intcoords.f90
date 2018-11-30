@@ -76,10 +76,10 @@ do i=1,nat
 enddo
 
 if(debug) then
-    print*, '1-2 pair list'
+    write(stdout,*) '1-2 pair list'
     do i=1,nat
-      print*, 'elem:',esym(iat(i)),' #n12:',inat(i)
-      print*, '->', ipair12(i,1:inat(i))
+      write(stdout,*) 'elem:',esym(iat(i)),' #n12:',inat(i)
+      write(stdout,*) '->', ipair12(i,1:inat(i))
     enddo
 endif
 
@@ -88,7 +88,7 @@ endif
 !--------EXPERIMENTAL START------------
 int_nLJ=0
 if (large) then
-  print*, 'experimental LARGE mode'
+  write(stdout,*) 'experimental LARGE mode'
   frag_nh=0; frag_nh=0; int_na=0;int_nt=0
   call read_intcoord('xopt.control',nat,xyz)
   kk=0
@@ -563,7 +563,7 @@ end subroutine
 
 subroutine get_Bmatrix(nat,xyz)
 use internals
-use fiso, only: r8
+use fiso, only: r8, stdout
 use parm, only: B
 use logic, only: debug
 implicit none
@@ -617,7 +617,7 @@ do it=1,int_nLJ
  b(idx,jj+2)=-e(3)
 enddo
 
-if(debug) print*,'bonds done'
+if(debug) write(stdout,*) 'bonds done'
 
 ! fragment coordinates
 do it=1,frag_nh
@@ -692,7 +692,7 @@ do it=1,int_na
 
 enddo
 
-if(debug) print*,'angles done'
+if(debug) write(stdout,*) 'angles done'
 ! torsions
 do it=1,int_nt
  idx=idx+1
@@ -747,7 +747,7 @@ do it=1,int_nt
   b(idx,ll+2)=e(3)
 
 enddo
-if(debug) print*,'dihedrals done'
+if(debug) write(stdout,*) 'dihedrals done'
 if(idx/=nints) call error('B-matrix construction error')
 
 ! call screenMat(nints,nat*3,b,epsilon(1d0),.true.,'B-matrix')
@@ -808,7 +808,7 @@ call DiagSM(nints,gmat2,gvec)
   nvar=nints
   write(stdout,'(a)', advance="no") 'making pseudo-inverse of G  ...'
   call mat_pinv(gmat,nints,nints,ginv,1d-10)
-  write(*,'(a)') ' done'
+  write(stdout,'(a)') ' done'
   if(debug) call printMat(6,nints,nints,ginv,'G^-')
   write(stdout,'(2x,a,I5)') 'degrees of freedom (red internals) : ',nvar
  endif

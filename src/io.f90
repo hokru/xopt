@@ -277,7 +277,7 @@ freeze=.true.
    do i=1,nat
      if(tifrez(i)==1) write(stdout,'(1x,I2)',advance="no") i
    enddo
-   print*,''
+   write(stdout,*)''
   endif
  endif
 endif
@@ -498,7 +498,7 @@ character(80) a
 logical da
 
 inquire(file=filen,exist=da)
-if(.not.da) print*,'cannot read ',filen,' (ERROR)'
+if(.not.da) write(stdout,*) 'cannot read ',filen,' (ERROR)'
 
 write(stdout,*) 'Reading <',trim(filen),'>'
 nval=6 ! 
@@ -550,7 +550,7 @@ character(120) a
 logical da
 
 inquire(file=filen,exist=da)
-if(.not.da) print*,'cannot read ',filen,' (ERROR)'
+if(.not.da) write(stdout,*) 'cannot read ',filen,' (ERROR)'
 
 write(stdout,*) 'Reading <',trim(filen),'>'
 h=99
@@ -695,7 +695,7 @@ close(123)
 !           in units of the electron charge)
 
 pc=pc/18.2223_r8
-print*,pc(1:5)
+! write(stdout,*) pc(1:5)
 
 !if(iat(1)==0) stop 'something went wrong in readamber'
 
@@ -959,6 +959,7 @@ end subroutine
 ! make scrdir in specified path
 subroutine para_scrdir2(basepath)
 use progs, only: scrdir
+use fiso, only: stdout
 implicit none
 integer pid,getpid
 character(*) basepath
@@ -972,7 +973,7 @@ write(spid,*) pid
 call get_environment_variable('PWD',pwd)
 
 write(scrdir,'(a)') '/'//trim(basepath)//'/xopt-scr-'//trim(adjustl(spid))
-print*, 'scratch name: ', trim(scrdir)
+write(stdout,*) 'scratch name: ', trim(scrdir)
 aa='mkdir '//trim(scrdir)
 call system(aa)
 end subroutine
@@ -1011,6 +1012,7 @@ end subroutine
 ! switch=1 : be verbose
 ! switch=2 : stop program & print error
 subroutine rmfile(string,switch)
+  use fiso, only : stdout
 implicit none
 logical da
 character(*) string
@@ -1021,7 +1023,7 @@ if(da) then
  open(unit=1234, file=trim(string), status='old')
  close(1234, status='delete')
 if(switch==2) call error('user requested stop')
-if(switch==1) print*,'removing ', trim(string)
+if(switch==1) write(stdout,*) 'removing ', trim(string)
 endif
 
 
@@ -1183,7 +1185,7 @@ do i=1,nat
   endif
  enddo
 enddo
-print*, id
+write(io,*) id
 stop
 
 ! write

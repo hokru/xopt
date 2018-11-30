@@ -28,19 +28,24 @@ call setvbuf(6,1,0)
 call system_clock(count_rate=cr) ! count rate, once is enough
 call progtime_start() ! end timing
 
-! header
-call head()
 
-call message_head('* loading options *')
 ! load defaults
 call loaddef()
 ! load user config defaults
 call loadrc()
 ! control options
-call rcontrol()
 call eval_options(infile)
 
+! output file handling
+if(do_output) then
+  stdout=1234
+  open(stdout,file=trim(output_name))
+endif
 
+! header
+call head()
+
+call rcontrol()
 
 if(.not.do_md) newhess=.true.
 if(do_dvv) then

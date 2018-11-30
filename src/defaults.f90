@@ -5,8 +5,13 @@ use logic
 use progs
 use MDdat
 use internals, only : int_LJ_cut
-use fiso, only: r8
+use fiso, only: r8, stdout,stdout_default
 implicit none
+
+! Output
+output_name='xopt.out'
+stdout=stdout_default
+do_output=.false.
 
 ! defaults
 thrR=5.0_r8

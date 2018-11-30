@@ -83,7 +83,7 @@ end
 subroutine modlindh
 ! diagonal form!
 use parm, only: xyz,nat
-use fiso, only: r8
+use fiso, only: r8,stdout
 use internals
 use logic, only: debug
 implicit none
@@ -136,7 +136,7 @@ enddo
 ! we have diagnoal non-redudant internals!
 do i=1,int_nb+int_na+int_nt+frag_nh+frag_nb
 if (hdiag(i)<0.05) then
-  if(debug) print*,'small Lindh hess value! Adjusting!',hdiag(i),i
+  if(debug) write(stdout,*) 'small Lindh hess value! Adjusting!',hdiag(i),i
   hdiag(i)=0.05
 endif
 enddo
@@ -264,8 +264,8 @@ real(r8), allocatable ::  hess(:,:), gr(:,:),gl(:,:)
 thrE=epsilon(1.0_r8)
 
 step=0.005_r8
-  print*, 'Doing Hessian numerically ..'
-  print*, '#displacement: ',6*nat
+  write(stdout,*) 'Doing Hessian numerically ..'
+  write(stdout,*) '#displacement: ',6*nat
   allocate(hess(nat3,nat3),gl(3,nat),gr(3,nat))
   hess=0.0_r8
   do i=1,nat
@@ -296,7 +296,7 @@ xyz=xyz0
   deallocate(gl,gr)
 
 ! symmetrize
-  print*, 'Symmetrizing Hessian ..'
+  write(stdout,*) 'Symmetrizing Hessian ..'
   do i=1,nat3
      do j=1,nat3
         chess(j,i)=(hess(i,j)+hess(j,i))*0.5_r8

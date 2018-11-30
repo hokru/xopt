@@ -23,7 +23,7 @@ end subroutine
 
 ! single-precision variant
 subroutine DiagSMF(xvar,matF,eigF)
-use fiso, only: r4
+use fiso, only: r4, stdout
 implicit none
 real(r4), allocatable :: auxF(:)
 integer info,lwork,xvar
@@ -40,7 +40,7 @@ lwork=int(xx)
 allocate(auxF(lwork))
 call ssyev ('V','U',xvar,matF,xvar,eigF,auxF,lwork,info)
 
-if(info/=0) print*,'DiagSMF: Diagonalization failed !!',info
+if(info/=0) write(stdout,*) 'DiagSMF: Diagonalization failed !!',info
 
 end subroutine
 
@@ -49,7 +49,7 @@ end subroutine
 ! wrapper around divide-and-conquer lapack eiensolver for symmetric problems
 ! fast, but significant memory requirements
 subroutine DiagSM2(xvar,mat,eig)
-use fiso, only: r8
+use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
@@ -78,7 +78,7 @@ end subroutine
 ! FULL SOLVER = ALL EIGENVECTORS!
 ! provide tolerance for solver tol=0 means machine epsilon
 subroutine DiagSM3(xvar,mat,eig,tol)
-use fiso, only: r8
+use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
@@ -107,7 +107,7 @@ end subroutine
 
 ! find lowest neig eigenvectors and eigenvalues and given tolerance
 subroutine DiagSM3_lowest(xvar,mat,eig,nlow,tol)
-use fiso, only: r8
+use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
@@ -137,7 +137,7 @@ end subroutine
 
 ! single-precision
 subroutine DiagSM3_lowest_SP(xvar,mat,eig,nlow,tol)
-use fiso, only: r4
+use fiso, only: r4, stdout
 implicit none
 real(r4), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
@@ -163,7 +163,7 @@ liwork=qi
 call ssyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 !print*,'#eigenvalues: ',neig,' of ',nlow,' requested'
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM3_lowest] !!',info
+if(info/=0) write(stdout,*) 'Diagonalization failed [subroutine DiagSM3_lowest] !!',info
 end subroutine
 
 
@@ -171,7 +171,7 @@ end subroutine
 ! RR-solver for just the eigenvalues
 ! with given tolerance
 subroutine DiagSM3_N(xvar,mat,eig,tol)
-use fiso, only: r8
+use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
@@ -192,7 +192,7 @@ allocate(iaux(qi))
 liwork=qi
 call dsyevr('N','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM3_N] !!'
+if(info/=0) write(stdout,*) 'Diagonalization failed [subroutine DiagSM3_N] !!'
 end subroutine
 
 !**********************************************
@@ -361,7 +361,7 @@ end subroutine
 
 ! compute condition number of a given matrix(MxN) using SVD, M>N
 subroutine get_cnr(m,n,matrix,cnr)
-use fiso, only: r8
+use fiso, only: r8,stdout
 implicit none
 integer m,n,lwork2,info
 real(r8) cnr,qwork
@@ -378,7 +378,7 @@ allocate(aux2(lwork2))
 call DGESVD('S','S', m, n, matrix ,m, S, U, m, VT, n, aux2, lwork2, INFO )
 !write(*,*) (S(i),i=1,nvar1)
 cnr=s(1)/s(m)
-write(*,'(3x,a,E018.3,2x,F8.5,2x,E10.3)')'  --> CND: ',cnr, log(cnr),1d0/cnr
+write(stdout,'(3x,a,E018.3,2x,F8.5,2x,E10.3)')'  --> CND: ',cnr, log(cnr),1d0/cnr
 
 matrix=backup
 

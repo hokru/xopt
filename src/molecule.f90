@@ -200,7 +200,7 @@ end function
 
 subroutine bondmatrix(nat,iat,xyz,bond)
 ! bond matrix and coordinate number
-use fiso, only: r8
+use fiso, only: r8, stdout
 use logic, only: debug
 use atomdata
 use constant, only: au2ang
@@ -239,7 +239,7 @@ do i=1,nat-1
 enddo
 
 
-if(debug) print*,'Writing xopt.bondmat'
+if(debug) write(stdout,*) 'Writing xopt.bondmat'
 open(newunit=io,file='xopt.bondmat')
 call printimat(io,nat,nat,bond,'bond matrix')
 close(io)
@@ -255,9 +255,9 @@ do i=1,nat
 enddo
 
 if(debug) then
-  write(*,'(a)')'CN:'
+  write(stdout,'(a)')'CN:'
   do i=1,nat
-  write(*,'(2x,I5,''['',a2,'']'',2x,I3)') i,esym(iat(i)),cn(i)
+  write(stdout,'(2x,I5,''['',a2,'']'',2x,I3)') i,esym(iat(i)),cn(i)
   enddo
 endif
 
