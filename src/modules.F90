@@ -30,7 +30,7 @@ module fiso
 #else 
 ! for cases that do not have yet compiler_version like ifort 15 
   use, intrinsic :: iso_fortran_env, only : &
-       stdin=> input_unit, stdout=>output_unit,stderr=>error_unit & ! I/O units, replaces non-def 0,5,6
+       stdin=> input_unit, stdout_default=>output_unit,stderr=>error_unit & ! I/O units, replaces non-def 0,5,6
        ,i8=>INT64,i4=>INT32   
 ! IEEE 754
  integer, parameter :: r4 = SELECTED_REAL_KIND(6,37)
@@ -53,7 +53,6 @@ integer(r4) :: stdout
 ! Stevel Lionel (Dr Fortran) recommends selected_xx_kind
 ! https://software.intel.com/en-us/blogs/2017/03/27/doctor-fortran-in-it-takes-all-kinds
 end module fiso
-
 
 
 
@@ -81,7 +80,7 @@ real(r8), parameter :: amu2kg= 1.660538782E-27_r8   !  Atomic mass units to kg c
 real(r8), parameter :: hartree2J= 4.359744E-18_r8   ! hartree to Joule
 real(r8), parameter :: au2m = au2ang/(10.0_r8**10)  ! bohr to metre 
 
-real(r8), parameter :: w8Gb = 8.0_r8/(1024.0_r8**3)  ! 64bit word to Gb
+real(r8), parameter :: w8Gb = 8.0_r8/(1024.0_r8**3)  ! 64bit word to Gib
 end module
 
 module timing

@@ -28,22 +28,22 @@ call setvbuf(6,1,0)
 call system_clock(count_rate=cr) ! count rate, once is enough
 call progtime_start() ! end timing
 
-
-! load defaults
+! set defaults
 call loaddef()
-! load user config defaults
-call loadrc()
 ! control options
 call eval_options(infile)
 
 ! output file handling
 if(do_output) then
-  stdout=1234
+  stdout=2222
   open(stdout,file=trim(output_name))
 endif
 
 ! header
 call head()
+
+! load user config for programs
+call loadrc()
 
 call rcontrol()
 
@@ -216,4 +216,8 @@ call message('normal program termination')
 call message(' ')
 call message(' ')
 
+! output file handling
+if(do_output) then
+  close(stdout)
+endif
 end program xopt
