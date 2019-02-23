@@ -508,17 +508,18 @@ c=mod(n3,6)
      read(33,'(a)',end=201)a
      if(index(a,'$hessian').ne.0) then
      read(33,*,end=201) d ! dimension
+     ! print*, d,n3
      if(d.ne.n3) stop 'wrong hessian dimension!'
      ! check orca30 vs orca40 hessian
      read(33,'(a)') a
      read(33,'(a)') a
-    !  print*, trim(a),len(trim(a))
+     print*, trim(a),len(trim(a))
      if(len(trim(a))>77) nval=5
      backspace(33)
      backspace(33)
      j=0
      do k=1,int(n3/nval)
-         read(33,'(a)',end=201)a ! legend
+         read(33,'(a)',end=201) a ! legend
          do i=1,n3
            read(33,*) x,(h(i,l),l=1+j,nval+j)
          enddo
