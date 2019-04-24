@@ -12,7 +12,9 @@ module fiso
  integer, parameter :: qp = SELECTED_REAL_KIND(33,4931)
 
  integer, parameter :: io_debug=1111
-#elif GNU_LEGACY # 4.5
+ integer(r4) :: stdout
+#elif GNU_LEGACY
+! need for gcc <= 4.5
  integer, parameter :: r4 = SELECTED_REAL_KIND(6,37)
  integer, parameter :: r8 = SELECTED_REAL_KIND(15,307)
  integer, parameter :: qp = SELECTED_REAL_KIND(33,4931)
@@ -25,6 +27,8 @@ module fiso
  contains
  character(7) function compiler_version()
  implicit none
+ integer(r4) :: stdout
+ integer, parameter :: io_debug=1111
   compiler_version='legacy gnu'
  end function
 #else 
@@ -37,6 +41,7 @@ module fiso
  integer, parameter :: r8 = SELECTED_REAL_KIND(15,307)
  integer, parameter :: qp = SELECTED_REAL_KIND(33,4931)
 
+ integer(r4) :: stdout
  integer, parameter :: io_debug=1111
  contains
  character(7) function compiler_version()
@@ -45,7 +50,6 @@ module fiso
  end function
 #endif
 
-integer(r4) :: stdout
 
 !real(r8), parameter :: eins=1.0_r8,nul=0.0_r8
 !note:
