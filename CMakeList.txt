@@ -1,0 +1,88 @@
+make_minimum_required(VERSION 3.9)
+project(xopt Fortran)
+set(xopt_URL "https://github.com/hokru/xopt")
+set(xopt_LICENSE "GNU Lesser General Public License, version 3 (LGPL-3.0)")
+set(xopt_DESCRIPTION "Open-Source External Optimizer for Quantum Chemistry")
+
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+
+#--- OPTIONS
+option(OPENMP "ON - enables adding of OpenMP targets, OFF - disables adding of OpenMP targets" ON)
+
+#--- Add a distclean target to the Makefile
+ADD_CUSTOM_TARGET(distclean 
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/distclean.cmake
+)
+
+
+
+
+#--- Install 
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "/usr/local/psi4" CACHE PATH "Install path" FORCE)
+endif()
+message(STATUS "Psi4 install: ${CMAKE_INSTALL_PREFIX}")
+
+set(STAGED_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/stage)
+message(STATUS "Psi4 staging: ${STAGED_INSTALL_PREFIX}")
+
+install(DIRECTORY ${STAGED_INSTALL_PREFIX}/
+        DESTINATION ${CMAKE_INSTALL_PREFIX}
+        USE_SOURCE_PERMISSIONS)
+
+set(XOPTEXE xopt)
+
+# general fortran settings
+
+set(CMAKE_Fortran_FORMAT FREE)
+
+# Have the .mod files placed in the lib folder
+SET(CMAKE_Fortran_MODULE_DIRECTORY ${LIB})
+
+
+# sets compiler flags
+include(cmake/modules/setFlags.cmake)
+
+# sets path for executables
+# set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
+
+
+if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+  set(dialect " -ffree-line-length-none ")
+  set(bounds "-fbounds-check")
+  if(NOT CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0.0)
+    set(DISABLE_OMP ON PARENT_SCOPE)
+  endif()
+endif()
+if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+  set(dialect "-axAVX2 -r8 -traceback")
+  set(bounds "-check bounds")
+endif()
+set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}" PARENT_SCOPE)
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}" PARENT_SCOPE)
+
+
+# Populate version.dat
+set(version ${PROJECT_VERSION})
+execute_process(COMMAND git rev-parse HEAD
+  RESULT_VARIABLE git_return
+  OUTPUT_VARIABLE commit)
+if(git_return)
+  set(commit "unknown-commit")
+else()
+  string(REGEX REPLACE "\n$" "" commit ${commit})
+endif()
+string(TIMESTAMP date "%m/%d/%Y")
+set(author $ENV{USERNAME})
+set(origin ${CMAKE_HOST_SYSTEM_NAME})
+configure_file(
+  "${xtb-dir}/assets/templates/version.f90"
+  "${CMAKE_CURRENT_BINARY_DIR}/xtb_version.fh"
+  @ONLY
+)
+set(xopt-config-dir "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
+
+message("BLAS_LIBRARIES ${BLAS_LIBRARIES}")
+message("LAPACK_LIBRARIES ${LAPACK_LIBRARIES}")
