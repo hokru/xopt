@@ -341,7 +341,8 @@ character(2) FUNCTION ESYM(I)
 implicit none
 integer :: i
 ! returns element symbol
-CHARACTER(2) ELEMNT(95)
+CHARACTER(2) :: ELEMNT(95)
+character(2),external :: to_upper
 DATA ELEMNT/'h ','he',                                           &
   'li','be','b ','c ','n ','o ','f ','ne',                       &
   'na','mg','al','si','p ','s ','cl','ar',                       &
@@ -353,7 +354,7 @@ DATA ELEMNT/'h ','he',                                           &
   'ho','er','tm','yb','lu','hf','ta','w ','re','os','ir','pt',   &
   'au','hg','tl','pb','bi','po','at','rn',                       &
   'fr','ra','ac','th','pa','u ','np','pu','xx'/
-  ESYM=ELEMNT(I)
+  ESYM=to_upper(ELEMNT(I))
   RETURN
 END
 

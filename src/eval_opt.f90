@@ -253,10 +253,10 @@ if(maxarg.gt.0) then
   if(index(ftmp,'-bfgs ').ne.0) iupdate=3
   if(index(ftmp,'-sr1 ').ne.0) iupdate=2
   if(index(ftmp,'-psb ').ne.0) iupdate=7
-  if(index(ftmp,'-sr1-bfgs ').ne.0) iupdate=1
-  if(index(ftmp,'-ss-bfgs ').ne.0) iupdate=4
-  if(index(ftmp,'-ss-sr1-bfgs ').ne.0) iupdate=5
-  if(index(ftmp,'-sr1-psb ').ne.0) iupdate=6
+  if(index(ftmp,'-sr1_bfgs ').ne.0) iupdate=1
+  if(index(ftmp,'-ss_bfgs ').ne.0) iupdate=4
+  if(index(ftmp,'-ss_sr1bfgs ').ne.0) iupdate=5
+  if(index(ftmp,'-sr1_psb ').ne.0) iupdate=6
   
 
 
@@ -506,12 +506,12 @@ write(io,'(a)')'PROGRAM INTERFACES'
  write(io,'(a)')'-int               To be done...'
  write(io,'(a)')''
  write(io,'(a)')' HESSIAN UPDATE SCHEMES:'
- write(io,'(a)')'-sg1-bfgs          (default for minimization)'
+ write(io,'(a)')'-sg1_bfgs          (default for minimization)'
  write(io,'(a)')'-sg1 '
  write(io,'(a)')'-bfgs '
- write(io,'(a)')'-ss-bfgs '
- write(io,'(a)')'-ss-sg1-bfgs       (experimental)'
- write(io,'(a)')'-sg1-psb           (default for TS search)'
+ write(io,'(a)')'-ss_bfgs '
+ write(io,'(a)')'-ss_sg1bfgs       (experimental)'
+ write(io,'(a)')'-sg1_psb           (default for TS search)'
  write(io,'(a)')'-psb              '
  write(io,'(a)')''
 

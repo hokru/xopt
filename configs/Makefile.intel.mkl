@@ -33,7 +33,7 @@ DO_STATIC=yes
 FFLAGS= -O2 -m64 
 
 ## set BLAS/LAPCK paths for optimized libraries
-MKLROOT = ${HOME}/miniconda3/
+#MKLROOT = ${HOME}/miniconda3/
 # MKLROOT = /usr/qc/intel/mkl2018/mkl/
 
 
