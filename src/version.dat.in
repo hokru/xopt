@@ -1,0 +1,4 @@
+write(stdout,'(a)')  '  build info    : ${HOST}@${USER}: ${DATE}'
+write(stdout,'(a)')  '  git version   : ${GIT_VERSION}'
+write(stdout,'(a)')  '  git branch    : ${GIT_BRANCH}'
+write(stdout,'(a)')  '  xopt url      : ${xopt_URL}'

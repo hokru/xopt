@@ -34,7 +34,7 @@ call timestamp()
 write(stdout,'(2a)') ' Host:   ',trim(host)
 write(stdout,'(2a)') ' working directory: ',trim(workdir)
 write(stdout,'(a)') ''
-include '../version.dat'
+include 'version.dat'
 write(stdout,*)'             '
 write(stdout,'(2a)') ' compiler version: ',compiler_version()
 write(stdout,'(a)') ''
