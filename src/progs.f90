@@ -18,6 +18,8 @@ write(stdout,*) " *                  +                                          
          write(stdout,*) " *  Gaussian                                                   *"
     elseif(amber) then
          write(stdout,*) " *  sander                                                     *"
+    elseif(gei) then
+         write(stdout,*) " *  custom interface                                  *"
     elseif(numgrad) then
            write(stdout,*) " * using parallel numerical gradients                             *"
          if(nproc>1) then

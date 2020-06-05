@@ -185,12 +185,12 @@ if(amber) then
   aa='rm -f forcedump.dat force.dat > /dev/null'
   call system (trim(aa))
   call wamber(nat3,xyz,'amber.rst')
-  if(APBS) then
-  aaa='sander.APBS -O -i '//trim(ambin)// &
-               ' -c amber.rst'// &
-               ' -p '//trim(ambtop)// &
-               ' -o '//trim(xjob)
-  endif
+  ! if(APBS) then
+  ! aaa='sander.APBS -O -i '//trim(ambin)// &
+  !              ' -c amber.rst'// &
+  !              ' -p '//trim(ambtop)// &
+  !              ' -o '//trim(xjob)
+  ! endif
   call system(trim(command_amber))
   !call wamber(nat3,xyz)
   call ambergrad(nat,grad,energy,apbs)
@@ -813,15 +813,25 @@ end subroutine
 subroutine egradfile(xnat,grad,e,fname)
 use fiso, only: r8
 implicit none
-integer i,xnat,io
+integer i,xnat,io,c
 character(*) fname
 real(r8) grad(3,xnat),e
+logical da
 
+inquire(file=fname, exist=da)
+if(.not.da) then
+  call error('missing file: '//fname)
+  return
+endif
 open(newunit=io,file=fname)
-read(io,*) e
+read(io,*,end=666) e
+c=0
 do i=1,xnat
-   read(io,*) grad(1:3,i)
+  c=c+1
+   read(io,*,end=666) grad(1:3,i)
 enddo
+666 continue
+if (c/=xnat) call error('incomplete gradient')
 close(io)
 end subroutine
 
