@@ -1,0 +1,78 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on:  ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+#         os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
+#         gcc_v: [7, 9] # Version of GFortran we want to use.
+        gcc_v: [9] # Version of GFortran we want to use.
+    env:
+      FC: gfortran-${{ matrix.gcc_v }}
+      GCC_V: ${{ matrix.gcc_v }}
+
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Install Intel Linux
+      if: contains (matrix.os, 'ubuntu')
+      run: |
+        sudo apt-get install -y build-essential ca-certificates cmake gnupg man-db pkg-config wget
+        sudo wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+        sudo apt-get -qqq update
+        sudo apt-get install -y intel-oneapi-ifort intel-oneapi-mkl intel-oneapi-mkl-devel
+        . /opt/intel/inteloneapi/setvars.sh
+        which ifort
+
+
+    - name: Install GFortran Linux
+      if: contains( matrix.os, 'ubuntu')
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get update
+        sudo apt-get install -y gcc-${GCC_V} gfortran-${GCC_V}
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_V} 100 \
+        --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${GCC_V} \
+        --slave /usr/bingcov gcov /usr/bin/gcov-${GCC_V}
+         
+    - name: Install GFortran macOS
+      if: contains( matrix.os, 'macos')
+      run: brew install gcc@${GCC_V} || brew upgrade gcc@${GCC_V} || true
+
+
+    - name: Configure with CMake
+      run: cmake -H. -Bobjdir -DCMAKE_BUILD_TYPE=Release -DINTEL
+
+    - name: Build and compile
+      run: cmake --build objdir
+
+    # Runs a single command using the runners shell
+#     - name: Run a one-line script
+#       run: echo Hello, world!
+
+    # Runs a set of commands using the runners shell
+#     - name: Run a multi-line script
+#       run: |
+#         echo Add other actions to build,
+#         echo test, and deploy your project.
