@@ -111,7 +111,7 @@ end subroutine
 subroutine eval_options (infile)
 use logic
 use popt
-use progs, only: usrscr,prog_flags
+use progs, only: usrscr,prog_flags, scall_gei
 use MDdat
 use fiso, only: r8, stdout,stdout_default
 implicit none
@@ -176,6 +176,9 @@ if(maxarg.gt.0) then
   if(index(ftmp,'-gei ').ne.0) then
     gei=.true.
 !    call_gei=trim(narg) ??
+  endif
+  if(index(ftmp,'-gei_command ').ne.0) then
+    scall_gei=trim(adjustl(arg(i+1)))
   endif
   if(index(ftmp,'-ppot ').ne.0) then
    ppot=.true.
@@ -441,6 +444,7 @@ write(io,'(a)')''
 !write(io,'(a)')''-noprint
 write(io,'(a)')''
 write(io,'(a)')'PROGRAM INTERFACES'
+ write(io,'(a)')''
  write(io,'(a)')'-tm                Turbomole(Xscf/Xgrad)'
  write(io,'(a)')'-tmcc              Turbomole(Xscf/ricc2)'
  write(io,'(a)')'-grad              stop after gradient(includes restraints!)'
@@ -465,6 +469,10 @@ write(io,'(a)')'PROGRAM INTERFACES'
  write(io,'(a)')'-extgcp <string>   gcp   system call  '
  write(io,'(a)')''
  write(io,'(a)')'-numgrad           arbitrary numerical gradient (provide mygrad.sh)'
+ write(io,'(a)')''
+ write(io,'(a)')'CUSTOM INTERFACE'
+ write(io,'(a)')'-gei               use general external interface'
+ write(io,'(a)')'-gei_command       name of the script to call'
  write(io,'(a)')''
  write(io,'(a)')'HESSIANS'
  write(io,'(a)')'-rhess <filename>  read TM, ORCA or G09 hessian           '

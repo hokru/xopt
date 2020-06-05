@@ -75,7 +75,7 @@ following format in a.u.::
 
 
 
-The default name of the script is ``mygrad.sh`` and the default gradient file is ``xopt.grad``
+The default name of the script is ``mygrad.sh`` and the default gradient file is ``xopt.grad``. The script name can be changed either in the .xoptrc options or with ``-gei_command <script name>``.
 
 
 
@@ -151,7 +151,7 @@ We can do ``Gaussian``, ``Turbomole(dscf,ricc2)``, ``Orca`` and (modified) ``Amb
 
 You need to make 2 directories named ``stateJ.xopt` and ``stateI.xopt``.
 Prepare the input for each state inside the directories.
-It should work for Turbomole, ORCA and G09 if you follow the general preparation guidelines above.
+It should work for Turbomole(dscf/ricc2), ORCA, G09, AMBER and the GEI custom interface. For the GEI each subdirectory must contain it's own script that writes the ``xopt.grad`` file.
 
 We assume state I < state J, e.g. J=I+1.
 
