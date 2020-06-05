@@ -68,7 +68,7 @@ jobs:
       run: cmake --build objdir
 
     # Runs a single command using the runners shell
-     - name: Run a one-line script
+    - name: Run a one-line script
        run: ./objdir/xopt -h 
 
     # Runs a set of commands using the runners shell
