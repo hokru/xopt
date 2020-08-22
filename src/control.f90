@@ -671,7 +671,7 @@ if(index(aa,'$oniom').ne.0) then ! found oniom yay
  enddo
 
 endif
-call error(6,"no $oniomin xopt.control")
+call error("no $oniomin xopt.control")
 enddo
 123 continue
 close(11)

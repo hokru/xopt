@@ -60,7 +60,7 @@ real(r8) TR(nat*3,6)
 real(r8) hess(nat*3*(nat*3+1)/2)
 
 integer lwork,info
-real(r8) qwork,S(nat*3),U(nat*3,6),VT(6,6)
+real(r8) qwork(1),S(nat*3),U(nat*3,6),VT(6,6)
 real(r8), allocatable :: work(:)
 
 cema=xyz
@@ -92,7 +92,7 @@ enddo
 ! SVD -> U
 ! query lwork, allocate, do it
 call DGESVD('S','S', nat3, 6, TR , nat3, S, U, nat3, VT, 6, QWORK, -1, INFO )
-lwork=int(qwork)
+lwork=int(qwork(1))
 allocate(work(lwork))
 call DGESVD('S','S', nat3, 6, TR , nat3, S, U, nat3, VT, 6, WORK, lwork, INFO )
 deallocate(work)

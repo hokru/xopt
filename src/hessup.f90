@@ -277,7 +277,7 @@ implicit none
 integer i,j,xvar,ij
 real(r8) phi
 real(r8) xg(xvar),xgo(xvar),xdisp(xvar)
-real(r8) g(xvar),go(xvar),disp(xvar)
+real(r4) g(xvar),go(xvar),disp(xvar)
 real(r4) sdot,xx
 real(r8) h(xvar*(xvar+1)/2)
 real(r4) hf(xvar*(xvar+1)/2)

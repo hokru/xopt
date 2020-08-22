@@ -825,6 +825,7 @@ subroutine Hcart2Hint
 use fiso, only:r8,stdout
 use internals, only: nints,inthess,Ginv
 use parm, only: nat3,B,chess
+implicit none
 real(r8) :: scr1(nat3,nints),scr2(nat3,nints),scr3(nints,nints)
 
 ! Bt x G
@@ -834,8 +835,8 @@ call matmult('n','n',nat3,nints,nat3,chess,scr1,scr2)
 ! B x HBtG
 call matmult('n','n',nints,nints,nat3,b,scr2,scr3)
 ! G x BHBtG
-call matmult('n','n',nints,nints,nints,ginv,scr3,inhess)
-call printMat(stdout,nints,nints,inhess,"H(int)")
+call matmult('n','n',nints,nints,nints,ginv,scr3,inthess)
+call printMat(stdout,nints,nints,inthess,"H(int)")
 end subroutine
 
 

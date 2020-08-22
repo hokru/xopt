@@ -9,12 +9,12 @@ implicit none
 real(r8), allocatable :: aux(:)
 integer info,lwork,xvar
 real(r8) ,intent(in) :: mat(xvar,xvar)
-real(r8) xx
+real(r8) xx(1)
 real(r8), intent(out) :: eig(xvar)
 
 eig=0.0_r8
 call dsyev ('V','U',xvar,mat,xvar,eig,xx,-1,info)
-lwork=int(xx)
+lwork=int(xx(1))
 allocate(aux(lwork))
 call dsyev ('V','U',xvar,mat,xvar,eig,aux,lwork,info)
 if(info/=0) call error('Diagonalization failed !!<DiagSM/dsyev>')
@@ -31,12 +31,12 @@ integer info,lwork,xvar
 !real(r8), intent(out) :: eig(xvar)
 !real(r8), allocatable :: auxF(:)
 real(r4) ,intent(in) :: matF(xvar,xvar)
-real(r4) xx
+real(r4) xx(1)
 real(r4), intent(out) :: eigF(xvar)
 
 eigF=0.0_r4
 call ssyev ('V','U',xvar,matF,xvar,eigF,xx,-1,info)
-lwork=int(xx)
+lwork=int(xx(1))
 allocate(auxF(lwork))
 call ssyev ('V','U',xvar,matF,xvar,eigF,auxF,lwork,info)
 
@@ -53,17 +53,17 @@ use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r8) ,intent(in) :: mat(xvar,xvar)
-real(r8) qr
+real(r8) qr(1)
 real(r8), intent(out) :: eig(xvar)
 
 eig=0.0_r8
 call dsyevd('V','U',xvar,mat,xvar,eig,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+allocate(iaux(qi(1)))
+liwork=qi(1)
 call dsyevd('V','U',xvar,mat,xvar,eig,aux,lwork,iaux,liwork,info)
 
 if(info/=0) call error('Diagonalization failed [subroutine DiagSM2] !!')
@@ -82,9 +82,9 @@ use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r8) ,intent(inout) :: mat(xvar,xvar)
-real(r8) qr
+real(r8) qr(1)
 real(r8), intent(out) :: eig(xvar)
 integer il,iu,neig,isuppz(2*xvar)
 real(r8) vl,vu,tol
@@ -94,10 +94,11 @@ eig=0
 !tol=DLAMCH( 'S' )
 !tol=0
 call dsyevr('V','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+liwork=qi(1)
+allocate(iaux(liwork))
+
 call dsyevr('V','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 
@@ -111,9 +112,9 @@ use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r8) ,intent(inout) :: mat(xvar,xvar)
-real(r8) qr
+real(r8) qr(1)
 real(r8), intent(out) :: eig(xvar)
 integer il,iu,neig,isuppz(2*xvar),nlow
 real(r8) vl,vu,tol
@@ -125,10 +126,11 @@ eig=0
 neig=0
 !tol=DLAMCH('S')
 call dsyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+liwork=qi(1)
+allocate(iaux(liwork))
+
 call dsyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 !print*,'#eigenvalues: ',neig,' of ',nlow,' requested'
@@ -141,9 +143,9 @@ use fiso, only: r4, stdout
 implicit none
 real(r4), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r4) ,intent(inout) :: mat(xvar,xvar)
-real(r4) qr
+real(r4) qr(1)
 real(r4), intent(out) :: eig(xvar)
 integer il,iu,neig,isuppz(2*xvar),nlow
 real(r4) vl,vu,tol
@@ -156,10 +158,11 @@ eig=0
 neig=0
 !tol=DLAMCH('S')
 call ssyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+liwork=qi(1)
+allocate(iaux(liwork))
+
 call ssyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 !print*,'#eigenvalues: ',neig,' of ',nlow,' requested'
@@ -175,9 +178,9 @@ use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r8) ,intent(inout) :: mat(xvar,xvar)
-real(r8) qr
+real(r8) qr(1)
 real(r8), intent(out) :: eig(xvar)
 integer il,iu,neig,isuppz(2*xvar)
 real(r8) vl,vu,tol,dlamch
@@ -186,10 +189,11 @@ real(r8) emat(xvar,xvar)
 eig=0
 tol=DLAMCH( 'S' )
 call dsyevr('N','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+liwork=qi(1)
+allocate(iaux(liwork))
+
 call dsyevr('N','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 if(info/=0) write(stdout,*) 'Diagonalization failed [subroutine DiagSM3_N] !!'
@@ -208,9 +212,9 @@ real(r8),intent(in):: A(m,n)
 real(r8) :: S(k),U(m,m),VT(n,n)
 integer :: lwork,info,ldu,ldv
 real(r8), allocatable :: work(:)
-real(r8) qwork
+real(r8) qwork(1)
 call DGESVD('A','A', m, n, A , m, S, U, m , VT, n, qwork, -1, info )
-lwork=int(qwork)
+lwork=int(qwork(1))
 allocate(work(lwork))
 call DGESVD('A','A', m, n, A , m, S, U, m, VT, n, work, lwork, info )
 deallocate(work)
@@ -364,7 +368,7 @@ subroutine get_cnr(m,n,matrix,cnr)
 use fiso, only: r8,stdout
 implicit none
 integer m,n,lwork2,info
-real(r8) cnr,qwork
+real(r8) cnr,qwork(1)
 real(r8) matrix(m,n),backup(m,n)
 real(r8), allocatable :: aux2(:)
 real(r8) S(m),U(m,m),VT(n,n)
@@ -373,7 +377,7 @@ backup=matrix
 
 ! get condition number of augmented Hessian
 call DGESVD('S','S', m, n, matrix , m, S, U, m, VT, n, QWORK, -1, INFO )
-lwork2=int(qwork)
+lwork2=int(qwork(1))
 allocate(aux2(lwork2))
 call DGESVD('S','S', m, n, matrix ,m, S, U, m, VT, n, aux2, lwork2, INFO )
 !write(*,*) (S(i),i=1,nvar1)

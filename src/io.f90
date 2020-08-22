@@ -1050,10 +1050,11 @@ open(newunit=io,file=filen,status='old',position='rewind')
 open(newunit=iot,file='psi4.tmp',status='new')
 
 write(iot,'(a)') '# set by xopt'
-write(iot,'(a)') "qmol = qcdb.Molecule.init_with_xyz('xopt.xyz')"
-write(iot,'(a)') 'mol = geometry(qmol.create_psi4_string_from_molecule())'
+write(iot,'(a)') "with open('xopt.xyz','r') as f:"
+write(iot,'(a)') '   mol = psi4.core.Molecule.from_string(f.read())'
 write(iot,'(a)') 'mol.update_geometry()'
 write(iot,'(a)') "mol.reset_point_group('c1')"
+write(iot,'(a)') "activate(mol)"
 ! copy rest of the content
 do
  read(io,'(a)',end=666) aa

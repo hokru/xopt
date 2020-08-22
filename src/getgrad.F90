@@ -312,12 +312,11 @@ character(80) wx
 open(newunit=io,file=filen)
   do
    read(io,'(a)',end=666) aa
-   call lower_case(aa)
-   if(fstr(aa,'total energy =')) then
+   if(fstr(aa,'Total Energy =')) then
      call charXsplit(aa,wx,4)
      e=s2r(wx)
    endif
-   if(fstr(aa,'total gradient:')) then
+   if(fstr(aa,'Total Gradient:')) then
      read(io,'(a)') aa
      read(io,'(a)') aa
      do i=1,n
