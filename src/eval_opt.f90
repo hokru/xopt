@@ -108,7 +108,7 @@ close(io)
 end subroutine
 
 
-subroutine eval_options (infile)
+subroutine eval_options(infile)
 use logic
 use popt
 use progs, only: usrscr,prog_flags, scall_gei

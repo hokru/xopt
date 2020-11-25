@@ -1,7 +1,7 @@
 module fiso
 
 ! wrapper around iso_fortran_env
-#ifdef GNU
+#if defined(GNU) || defined(INTEL)
  use, intrinsic :: iso_fortran_env, only : &
      stdin=> input_unit, stdout_default=>output_unit,stderr=>error_unit, & ! I/O units, replaces non-def 0,5,6
       i8=>INT64,i4=>INT32               , & 
@@ -13,7 +13,7 @@ module fiso
 
  integer, parameter :: io_debug=1111
  integer(r4) :: stdout
-#elif GNU_LEGACY
+#elif LEGACY
 ! need for gcc <= 4.5
  integer, parameter :: r4 = SELECTED_REAL_KIND(6,37)
  integer, parameter :: r8 = SELECTED_REAL_KIND(15,307)
@@ -29,7 +29,7 @@ module fiso
  implicit none
  integer(r4) :: stdout
  integer, parameter :: io_debug=1111
-  compiler_version='legacy gnu'
+  compiler_version='legacy'
  end function
 #else 
 ! for cases that do not have yet compiler_version like ifort 15 
