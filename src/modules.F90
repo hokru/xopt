@@ -604,3 +604,10 @@ integer, allocatable :: cn(:)
 
 end module internals
 
+
+module IOconfig
+  character(255) :: logger_scratch = ''
+  character(8),  parameter :: logger_xyz = 'xopt.log'
+  character(13), parameter :: logger_grad = 'xopt.grad.log'
+  character(5), parameter :: hidden_xopt = ".XOPT" ! unit 331
+end module IOconfig

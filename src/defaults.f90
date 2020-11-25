@@ -94,6 +94,7 @@ orient=.false.
 
 ! parallel
 nproc=1
+nomp=1
 
 
 usrscr="local"

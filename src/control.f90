@@ -56,12 +56,13 @@ end subroutine
 !* log the gradient *
 !********************
 subroutine loggrad(nat,iter,grad,energy)
-use fiso, only: r8
+  use fiso, only: r8
+  use IOconfig, only: logger_grad
 implicit none
 integer iter,nat,i
 real(r8) grad(3,nat),energy
 
-open(unit=11,file='xopt.grad.log',status='old',position='append')
+open(unit=11,file=logger_grad,status='old',position='append')
 write(11,'(a,2x,I5,2x,F16.8)') '$iter',iter, energy
 do i=1,nat
  write(11,'(3F18.14)') grad(1,i),grad(2,i),grad(3,i)
@@ -73,14 +74,15 @@ end subroutine
 !* make initial log files so we can append later *
 !*************************************************
 subroutine touchlog
+  use IOconfig, only: logger_grad,logger_xyz
 implicit none
 ! gradients
-open(unit=11,file='xopt.grad.log',status='replace')
+open(unit=11,file=trim(logger_grad),status='replace')
   write(11,'(a)') 'logfile for the xopt gradients'
 close(11)
 
 !geometries
-open(unit=11,file='xopt.log',status='replace')
+open(unit=11,file=trim(logger_xyz),status='replace')
 !write(11,'(a)') 'logfile for the xopt gradients'
 close(11)
 

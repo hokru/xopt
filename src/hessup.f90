@@ -25,7 +25,7 @@ if(switch>=1)call packM(xvar,chess,hs,'pack')
 select case(iupdate)
  case default
  case(1)
-   call SR1BFGS(xvar,grad,oldG,displ,hs)
+  call SR1BFGS(xvar,grad,oldG,displ,hs)
  case(2)
   call SR1(xvar,grad,oldG,displ,hs)
  case(3)
