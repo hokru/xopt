@@ -110,7 +110,7 @@ v=v*(dvv_step/vnorm)
 
  iter=0
  c=0
-print*, '' 
+write(stdout,*) '' 
 ! <<<< IRC-DVV LOOP >>>>>
 write(stdout,'(a)') '    iter    dt       ddt             E            error         dE'
 do

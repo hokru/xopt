@@ -5,8 +5,13 @@ use logic
 use progs
 use MDdat
 use internals, only : int_LJ_cut
-use fiso, only: r8
+use fiso, only: r8, stdout,stdout_default
 implicit none
+
+! Output
+output_name='xopt.out'
+stdout=stdout_default
+do_output=.false.
 
 ! defaults
 thrR=5.0_r8
@@ -89,6 +94,7 @@ orient=.false.
 
 ! parallel
 nproc=1
+nomp=1
 
 
 usrscr="local"
@@ -127,6 +133,8 @@ thermo_nh=.true.
 thermo_berend=.false.
 thermo_scale=.false.
 
+
+do_hmass=.false.
 
 ! catch & fix default for special case
 if(nat>3000) then

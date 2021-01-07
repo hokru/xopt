@@ -1,0 +1,100 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Linux (Ubuntu)
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/17431/l_BaseKit_p_2021.1.0.2659_offline.sh
+  LINUX_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/17427/l_HPCKit_p_2021.1.0.2684_offline.sh
+  LINUX_FORTRAN_COMPONENTS: intel-oneapi-compiler-fortran
+  LINUX_FORTRAN_COMPONENTS_WEB: intel.oneapi.lin.ifort-compiler
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  build_xopt:
+    # The type of runner that the job will run on
+    runs-on:  ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        gcc_v: [ 10 ] # Version of GFortran we want to use.
+        compiler: [gcc, intel] # Version of GFortran we want to use.
+    env:
+      FC: gfortran-${{ matrix.gcc_v }}
+      GCC_V: ${{ matrix.gcc_v }}
+
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: setup ubuntu build environment
+      if: contains( matrix.os, 'ubuntu') && contains( matrix.compiler, 'gcc')
+      run: |
+        sudo apt-get install -y ca-certificates gnupg man-db pkg-config wget
+        sudo apt-get install apt-transport-https software-properties-common 
+        wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+        sudo apt-get -qqq update
+        sudo apt-get install -y build-essential cmake
+
+    - name: Install Intel OneAPI 
+      if: contains( matrix.compiler, 'intel')
+      run: |
+        sudo wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+        sudo apt-get -qqq update
+        sudo apt-get install -y  intel-oneapi-compiler-fortran intel-oneapi-mkl intel-oneapi-mkl-devel intel-oneapi-runtime-libs
+
+    - name: Install GFortran and openblas
+      if: contains( matrix.compiler, 'gcc')
+      run: |
+       sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+       sudo apt-get update
+       sudo apt-get install -y gcc-${GCC_V} gfortran-${GCC_V} libopenblas-dev
+       sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_V} 100 \
+       --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${GCC_V} \
+       --slave /usr/bingcov gcov /usr/bin/gcov-${GCC_V}
+
+    - name: Configure with CMake (GCC + OpenBlas)
+      if: contains( matrix.compiler, 'gcc')
+      run: |
+        cmake -H. -Bobjdir -DCMAKE_BUILD_TYPE=Release -DGNU=ON -DBLAS=OpenBLAS
+
+    - name: Configure with CMake (Intel + MKL)
+      if: contains( matrix.compiler, 'intel')
+      run: |
+        source /opt/intel/oneapi/setvars.sh
+        cmake -H. -Bobjdir -DCMAKE_BUILD_TYPE=Release -DINTEL=ON -DBLAS=MKL 
+
+    - name: Build and compile
+      run: cmake --build objdir --verbose
+
+    # Runs a single command using the runners shell
+    - name: smoke test binary with help
+      if: contains( matrix.compiler, 'gcc')
+      run: |
+        ./objdir/xopt -h 
+
+    # Runs a single command using the runners shell
+    # - name: smoke test binary with help
+    #   if: contains( matrix.compiler, 'intel')
+    #   run: |
+    #     export API=/opt/intel/oneapi
+    #     source $API/mkl/latest/env/vars.sh
+    #     ./objdir/xopt -h 
+
+    # Runs a set of commands using the runners shell
+#     - name: Run a multi-line script
+#       run: |
+#         echo Add other actions to build,
+#         echo test, and deploy your project.

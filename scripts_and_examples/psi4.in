@@ -1,4 +1,5 @@
 
+# psithon-style
 # example of a pbe gradient
 # charge+mult is needed
 mol.set_molecular_charge(0) 
@@ -8,13 +9,13 @@ set globals {
  basis def2-TZVP
  INTS_TOLERANCE 1e-11
  DF_SCF_GUESS false
- dft_spherical_points 434    # "grid 4 in orca/tm"
- dft_radial_points 75        # default
+ dft_spherical_points 434   
+ dft_radial_points 75      
  dft_functional pbe
  reference rks
 }
 
 
-memory 60 Gb
+memory 60 Gib
 set_num_threads(16)
 gradient('scf')

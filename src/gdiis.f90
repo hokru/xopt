@@ -1,5 +1,4 @@
 ! GDIIS for normal coords
-! buggy??
 subroutine gdiis(idiis,iter,ogint,oanc,displ,xgint,ok)
 use parm
 use fiso, only: r8,stdout

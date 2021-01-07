@@ -40,95 +40,102 @@ if(numgrad) then
     endif
 else
 
+  ! directory definitions. Fixed for now
+  dir1='/stateI.xopt'
+  dir2='/stateJ.xopt'
+  !call getcwd(pwd)
+  call get_environment_variable('PWD',pwd)
 
-! directory definitions. Fixed for now
-dir1='/stateI.xopt'
-dir2='/stateJ.xopt'
-!call getcwd(pwd)
-call get_environment_variable('PWD',pwd)
+  ! change to dir1
+  exepath=adjustl(trim(pwd))//trim(adjustl(dir1))
+  call chdir(adjustl(trim(exepath)))
 
-! change to dir1
-exepath=adjustl(trim(pwd))//trim(adjustl(dir1))
-call chdir(adjustl(trim(exepath)))
+  !----------------------------------------
+  ! It is an unfortunate design to have to repeat getgrad.
+  ! Long term this should be done better
+  ! for state I
+  if(gei) then
+    call system(trim(command_gei))
+    call egradfile(nat,gi,ei,trim(geigrad))
+  elseif (tm) then
+      call system('actual -r &> /dev/null')
+      aa='dscf > '//xjob
+      bb='ricc2 >> '//xjob
+      call system(aa)
+      call system(bb)
+      call tmgrad(nat,gi,ei)
+  elseif(orca) then
+      call system(trim(command_orca))
+      call rdorcagrad(nat,gi,ei   ,'orca.engrad')
+      call system("cp xopt.job xopt.last")
+  elseif(gaus) then
+      call IOgaussian('g.in')
+      call system(trim(command_gaus))
+      call g09grad(nat,gi,ei)
+      call system("cp xopt.job xopt.last")
+  elseif(amber) then
+      aa='rm -f forcedump.dat force.dat > /dev/null'
+      call system (trim(aa))
+      call wamber(nat3,xyz,'amber.rst')
+      call system(trim(command_amber))
+      call ambergrad(nat,gi,ei,apbs)
+      call cpfile('xopt.job','xopt.last','.')
+  !    aa='sander -O -i '//trim(ambin)// &
+  !             ' -o '//trim(xjob)// &
+  !             ' -c amber.rst'// &
+  !             ' -p '//trim(ambtop)
+  !    call system(trim(aa))
+  !    call ambergrad(nat,grad,energy,apbs)
+  endif
+  ! call getd3gcp(nat,ei,gi)
+  !----------------------------------------
 
-!----------------------------------------
-! for state I
-if (tm) then
-    call system('actual -r &> /dev/null')
-    aa='dscf > '//xjob
-    bb='ricc2 >> '//xjob
-    call system(aa)
-    call system(bb)
-    call tmgrad(nat,gi,ei)
-elseif(orca) then
-    aa='orca30 orca.in > '//xjob
-    call system(trim(aa))
-    call rdorcagrad(nat,gi,ei   ,'orca.engrad')
-    call system("cp xopt.job xopt.last")
-elseif(gaus) then
-    call IOgaussian('g.in')
-    aa='run-g09 g.in xopt.job'
-    call system(trim(aa))
-    call g09grad(nat,gi,ei)
-    call system("cp xopt.job xopt.last")
-elseif(amber) then
-    aa='rm -f forcedump.dat force.dat > /dev/null'
-    call system (trim(aa))
-    call wamber(nat3,xyz,'amber.rst')
-    call system(trim(command_amber))
-    call ambergrad(nat,gi,ei,apbs)
-    call cpfile('xopt.job','xopt.last','.')
-!    aa='sander -O -i '//trim(ambin)// &
-!             ' -o '//trim(xjob)// &
-!             ' -c amber.rst'// &
-!             ' -p '//trim(ambtop)
-!    call system(trim(aa))
-!    call ambergrad(nat,grad,energy,apbs)
-endif
-!----------------------------------------
+  ! change to dir2
+  exepath=adjustl(trim(pwd))//trim(adjustl(dir2))
+  call chdir(trim(exepath))
 
-! change to dir2
-exepath=adjustl(trim(pwd))//trim(adjustl(dir2))
-call chdir(trim(exepath))
+  !----------------------------------------
+  ! for state J
+  if(gei) then
+    call system(trim(command_gei))
+    call egradfile(nat,gj,ej,trim(geigrad))
+  elseif (tm) then
+      call system('actual -r &> /dev/null')
+      aa='dscf > '//xjob
+      bb='ricc2 >> '//xjob
+      call system(aa)
+      call system(bb)
+      call tmgrad(nat,gj,ej)
+  elseif(orca) then
+      aa='orca30 orca.in > '//xjob
+      call system(trim(aa))
+      call rdorcagrad(nat,gj,ej,'orca.engrad')
+      call system("cp xopt.job xopt.last")
+  elseif(gaus) then
+      call IOgaussian('g.in')
+      aa='run-g09 g.in xopt.job'
+      call system(trim(aa))
+      call g09grad(nat,gj,ej)
+      call system("cp xopt.job xopt.last")
+  elseif(amber) then
+      aa='rm -f forcedump.dat force.dat > /dev/null'
+      call system (trim(aa))
+      call wamber(nat3,xyz,'amber.rst')
+      call system(trim(command_amber))
+      call ambergrad(nat,gj,ej,apbs)
+      call cpfile('xopt.job','xopt.last','.')
+  !    aa='sander -O -i '//trim(ambin)// &
+  !             ' -o '//trim(xjob)// &
+  !             ' -c amber.rst'// &
+  !             ' -p '//trim(ambtop)
+  !    call system(trim(aa))
+  !    call ambergrad(nat,grad,energy,apbs)
+  endif
+  ! call getd3gcp(nat,ej,gj)
+  !----------------------------------------
 
-!----------------------------------------
-! for state J
-if(tm) then
-    call system('actual -r &> /dev/null')
-    aa='dscf > '//xjob
-    bb='ricc2 >> '//xjob
-    call system(aa)
-    call system(bb)
-    call tmgrad(nat,gj,ej)
-elseif(orca) then
-    aa='orca30 orca.in > '//xjob
-    call system(trim(aa))
-    call rdorcagrad(nat,gj,ej,'orca.engrad')
-    call system("cp xopt.job xopt.last")
-elseif(gaus) then
-call IOgaussian('g.in')
-    aa='run-g09 g.in xopt.job'
-    call system(trim(aa))
-    call g09grad(nat,gj,ej)
-    call system("cp xopt.job xopt.last")
-elseif(amber) then
-    aa='rm -f forcedump.dat force.dat > /dev/null'
-    call system (trim(aa))
-    call wamber(nat3,xyz,'amber.rst')
-    call system(trim(command_amber))
-    call ambergrad(nat,gj,ej,apbs)
-    call cpfile('xopt.job','xopt.last','.')
-!    aa='sander -O -i '//trim(ambin)// &
-!             ' -o '//trim(xjob)// &
-!             ' -c amber.rst'// &
-!             ' -p '//trim(ambtop)
-!    call system(trim(aa))
-!    call ambergrad(nat,grad,energy,apbs)
-endif
-!----------------------------------------
-
-! return to working dir
-call chdir(adjustl(trim(pwd)))
+  ! return to working dir
+  call chdir(adjustl(trim(pwd)))
 endif
 
 flipped=.false.
@@ -164,7 +171,7 @@ term=(deij**2+2.0_r8*alpha*deij)*ida2
 
 ! update sigma somewhat dynamically
 if(abs(fold-fij)<5e-5.and.abs(deij)>1e-3) then
-  write(*,'(12x,a,F7.3)') ' increasing sigma by',sigma*(2*deij/alpha)
+  write(stdout,'(12x,a,F7.3)') ' increasing sigma by',sigma*(2*deij/alpha)
   sigma=sigma+sigma*(2*deij/alpha)
   maxd=0.2
  if(sigma>sig_max) sigma=sig_max
@@ -203,10 +210,10 @@ xvec=gvec-ddot(nat3,gvec,1,uvec,1)*uvec
 !write(6,'(3x,a,E10.3,2x,E10.3,x,L)') '| perp gconv',dnrm2(nat3,xvec,1),0.005,dnrm2(nat3,xvec,1)<0.005
 
 if(deij<1.e-3.and.sigma>=50) then
-print*, 'Gap small and max. penalty reached. Probably wont get better, likely worse.'
-print*, 'Gap:',deij,' penalty:',sigma
-print*, 'E(I):',ei,'E(J):',ej
-print*, 'stopping and writing final geometry'
+write(stdout,*) 'Gap small and max. penalty reached. Probably wont get better, likely worse.'
+write(stdout,*) 'Gap:',deij,' penalty:',sigma
+write(stdout,*) 'E(I):',ei,'E(J):',ej
+write(stdout,*) 'stopping and writing final geometry'
 call wrxyz(trim(xyzfile))
 call error('ciopt request urgent stop')
 endif

@@ -9,21 +9,21 @@ implicit none
 real(r8), allocatable :: aux(:)
 integer info,lwork,xvar
 real(r8) ,intent(in) :: mat(xvar,xvar)
-real(r8) xx
+real(r8) xx(1)
 real(r8), intent(out) :: eig(xvar)
 
 eig=0.0_r8
 call dsyev ('V','U',xvar,mat,xvar,eig,xx,-1,info)
-lwork=int(xx)
+lwork=int(xx(1))
 allocate(aux(lwork))
 call dsyev ('V','U',xvar,mat,xvar,eig,aux,lwork,info)
-if(info/=0) print*,'Diagonalization failed !!',info
+if(info/=0) call error('Diagonalization failed !!<DiagSM/dsyev>')
 end subroutine
 
 
 ! single-precision variant
 subroutine DiagSMF(xvar,matF,eigF)
-use fiso, only: r4
+use fiso, only: r4, stdout
 implicit none
 real(r4), allocatable :: auxF(:)
 integer info,lwork,xvar
@@ -31,16 +31,16 @@ integer info,lwork,xvar
 !real(r8), intent(out) :: eig(xvar)
 !real(r8), allocatable :: auxF(:)
 real(r4) ,intent(in) :: matF(xvar,xvar)
-real(r4) xx
+real(r4) xx(1)
 real(r4), intent(out) :: eigF(xvar)
 
 eigF=0.0_r4
 call ssyev ('V','U',xvar,matF,xvar,eigF,xx,-1,info)
-lwork=int(xx)
+lwork=int(xx(1))
 allocate(auxF(lwork))
 call ssyev ('V','U',xvar,matF,xvar,eigF,auxF,lwork,info)
 
-if(info/=0) print*,'DiagSMF: Diagonalization failed !!',info
+if(info/=0) write(stdout,*) 'DiagSMF: Diagonalization failed !!',info
 
 end subroutine
 
@@ -49,24 +49,24 @@ end subroutine
 ! wrapper around divide-and-conquer lapack eiensolver for symmetric problems
 ! fast, but significant memory requirements
 subroutine DiagSM2(xvar,mat,eig)
-use fiso, only: r8
+use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r8) ,intent(in) :: mat(xvar,xvar)
-real(r8) qr
+real(r8) qr(1)
 real(r8), intent(out) :: eig(xvar)
 
 eig=0.0_r8
 call dsyevd('V','U',xvar,mat,xvar,eig,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+allocate(iaux(qi(1)))
+liwork=qi(1)
 call dsyevd('V','U',xvar,mat,xvar,eig,aux,lwork,iaux,liwork,info)
 
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM2] !!',info
+if(info/=0) call error('Diagonalization failed [subroutine DiagSM2] !!')
 end subroutine
 
 !******************************************************************************
@@ -78,13 +78,13 @@ end subroutine
 ! FULL SOLVER = ALL EIGENVECTORS!
 ! provide tolerance for solver tol=0 means machine epsilon
 subroutine DiagSM3(xvar,mat,eig,tol)
-use fiso, only: r8
+use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r8) ,intent(inout) :: mat(xvar,xvar)
-real(r8) qr
+real(r8) qr(1)
 real(r8), intent(out) :: eig(xvar)
 integer il,iu,neig,isuppz(2*xvar)
 real(r8) vl,vu,tol
@@ -94,26 +94,27 @@ eig=0
 !tol=DLAMCH( 'S' )
 !tol=0
 call dsyevr('V','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+liwork=qi(1)
+allocate(iaux(liwork))
+
 call dsyevr('V','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM3] !!',info
+if(info/=0) call error('Diagonalization failed [subroutine DiagSM3] !!')
 end subroutine
 
 
 ! find lowest neig eigenvectors and eigenvalues and given tolerance
 subroutine DiagSM3_lowest(xvar,mat,eig,nlow,tol)
-use fiso, only: r8
+use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r8) ,intent(inout) :: mat(xvar,xvar)
-real(r8) qr
+real(r8) qr(1)
 real(r8), intent(out) :: eig(xvar)
 integer il,iu,neig,isuppz(2*xvar),nlow
 real(r8) vl,vu,tol
@@ -125,25 +126,26 @@ eig=0
 neig=0
 !tol=DLAMCH('S')
 call dsyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+liwork=qi(1)
+allocate(iaux(liwork))
+
 call dsyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 !print*,'#eigenvalues: ',neig,' of ',nlow,' requested'
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM3_lowest] !!',info
+if(info/=0) call error('Diagonalization failed [subroutine DiagSM3_lowest] !!')
 end subroutine
 
 ! single-precision
 subroutine DiagSM3_lowest_SP(xvar,mat,eig,nlow,tol)
-use fiso, only: r4
+use fiso, only: r4, stdout
 implicit none
 real(r4), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r4) ,intent(inout) :: mat(xvar,xvar)
-real(r4) qr
+real(r4) qr(1)
 real(r4), intent(out) :: eig(xvar)
 integer il,iu,neig,isuppz(2*xvar),nlow
 real(r4) vl,vu,tol
@@ -156,14 +158,15 @@ eig=0
 neig=0
 !tol=DLAMCH('S')
 call ssyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+liwork=qi(1)
+allocate(iaux(liwork))
+
 call ssyevr('V','I','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
 !print*,'#eigenvalues: ',neig,' of ',nlow,' requested'
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM3_lowest] !!',info
+if(info/=0) write(stdout,*) 'Diagonalization failed [subroutine DiagSM3_lowest] !!',info
 end subroutine
 
 
@@ -171,13 +174,13 @@ end subroutine
 ! RR-solver for just the eigenvalues
 ! with given tolerance
 subroutine DiagSM3_N(xvar,mat,eig,tol)
-use fiso, only: r8
+use fiso, only: r8, stdout
 implicit none
 real(r8), allocatable :: aux(:)
 integer, allocatable :: iaux(:)
-integer info,lwork,xvar,qi,liwork
+integer info,lwork,xvar,qi(1),liwork
 real(r8) ,intent(inout) :: mat(xvar,xvar)
-real(r8) qr
+real(r8) qr(1)
 real(r8), intent(out) :: eig(xvar)
 integer il,iu,neig,isuppz(2*xvar)
 real(r8) vl,vu,tol,dlamch
@@ -186,13 +189,14 @@ real(r8) emat(xvar,xvar)
 eig=0
 tol=DLAMCH( 'S' )
 call dsyevr('N','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,qr,-1,qi,-1,info)
-lwork=int(qr)
+lwork=int(qr(1))
 allocate(aux(lwork))
-allocate(iaux(qi))
-liwork=qi
+liwork=qi(1)
+allocate(iaux(liwork))
+
 call dsyevr('N','A','U',xvar,mat,xvar,vl,vu,il,iu,tol,neig,eig,emat,xvar,isuppz,aux,lwork,iaux,liwork,info)
 mat=emat
-if(info/=0) print*,'Diagonalization failed [subroutine DiagSM3_N] !!'
+if(info/=0) write(stdout,*) 'Diagonalization failed [subroutine DiagSM3_N] !!'
 end subroutine
 
 !**********************************************
@@ -208,9 +212,9 @@ real(r8),intent(in):: A(m,n)
 real(r8) :: S(k),U(m,m),VT(n,n)
 integer :: lwork,info,ldu,ldv
 real(r8), allocatable :: work(:)
-real(r8) qwork
+real(r8) qwork(1)
 call DGESVD('A','A', m, n, A , m, S, U, m , VT, n, qwork, -1, info )
-lwork=int(qwork)
+lwork=int(qwork(1))
 allocate(work(lwork))
 call DGESVD('A','A', m, n, A , m, S, U, m, VT, n, work, lwork, info )
 deallocate(work)
@@ -276,7 +280,7 @@ end subroutine
 
 subroutine unitvec(x,e)
 use fiso, only: r8
-! unit vector of vector
+! unit vector e of vector x
 implicit none
 real(r8) x(3),e(3),t(3)
 t=DOT_PRODUCT(x,x)
@@ -289,7 +293,7 @@ use fiso, only: r8
 ! vector(3) norm
 implicit none
 real(r8) x(3),v
-v=dsqrt(dot_product(x,x))
+v=sqrt(dot_product(x,x))
 end subroutine
 
 
@@ -299,7 +303,7 @@ use fiso, only: r8
 implicit none
 real(r8) a(3),b(3),v,x(3)
 x=a-b
-v=dsqrt(dot_product(x,x))
+v=sqrt(dot_product(x,x))
 end subroutine
 
 
@@ -361,10 +365,10 @@ end subroutine
 
 ! compute condition number of a given matrix(MxN) using SVD, M>N
 subroutine get_cnr(m,n,matrix,cnr)
-use fiso, only: r8
+use fiso, only: r8,stdout
 implicit none
 integer m,n,lwork2,info
-real(r8) cnr,qwork
+real(r8) cnr,qwork(1)
 real(r8) matrix(m,n),backup(m,n)
 real(r8), allocatable :: aux2(:)
 real(r8) S(m),U(m,m),VT(n,n)
@@ -373,27 +377,27 @@ backup=matrix
 
 ! get condition number of augmented Hessian
 call DGESVD('S','S', m, n, matrix , m, S, U, m, VT, n, QWORK, -1, INFO )
-lwork2=int(qwork)
+lwork2=int(qwork(1))
 allocate(aux2(lwork2))
 call DGESVD('S','S', m, n, matrix ,m, S, U, m, VT, n, aux2, lwork2, INFO )
 !write(*,*) (S(i),i=1,nvar1)
 cnr=s(1)/s(m)
-write(*,'(3x,a,E018.3,2x,F8.5,2x,E10.3)')'  --> CND: ',cnr, log(cnr),1d0/cnr
+write(stdout,'(3x,a,E018.3,2x,F8.5,2x,E10.3)')'  --> CND: ',cnr, log(cnr),1d0/cnr
 
 matrix=backup
 
 end subroutine
 
 
-! get unit vector
 subroutine evec(a,b,e)
 use fiso, only: r8
+! get unit vector e of difference vector a-b
 implicit none
 real(r8), intent(in) :: a(3),b(3)
 real(r8), intent(out) :: e(3)
 real(r8) rab,dbond
 
-rab=dbond(a,b);
+rab=dbond(a,b)
 e(1)=(a(1)-b(1))/rab
 e(2)=(a(2)-b(2))/rab
 e(3)=(a(3)-b(3))/rab

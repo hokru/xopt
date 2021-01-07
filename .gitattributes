@@ -1,0 +1,3 @@
+*.f linguist-language=Fortran
+*.F90 linguist-language=Fortran
+*.f90 linguist-language=Fortran

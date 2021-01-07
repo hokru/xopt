@@ -277,7 +277,7 @@ freeze=.true.
    do i=1,nat
      if(tifrez(i)==1) write(stdout,'(1x,I2)',advance="no") i
    enddo
-   print*,''
+   write(stdout,*)''
   endif
  endif
 endif
@@ -341,7 +341,8 @@ character(2) FUNCTION ESYM(I)
 implicit none
 integer :: i
 ! returns element symbol
-CHARACTER(2) ELEMNT(95)
+CHARACTER(2) :: ELEMNT(95)
+character(2),external :: to_upper
 DATA ELEMNT/'h ','he',                                           &
   'li','be','b ','c ','n ','o ','f ','ne',                       &
   'na','mg','al','si','p ','s ','cl','ar',                       &
@@ -353,7 +354,7 @@ DATA ELEMNT/'h ','he',                                           &
   'ho','er','tm','yb','lu','hf','ta','w ','re','os','ir','pt',   &
   'au','hg','tl','pb','bi','po','at','rn',                       &
   'fr','ra','ac','th','pa','u ','np','pu','xx'/
-  ESYM=ELEMNT(I)
+  ESYM=to_upper(ELEMNT(I))
   RETURN
 END
 
@@ -457,7 +458,35 @@ else
 endif
 end
 
+subroutine readPSI4hess(n3,h,filen)
+!
+! Also works for CFOUR hessians
+!
+use fiso, only: r8, stdout
+implicit none
+integer k,i,j,n3,io,nat,x
+real(r8) h(n3,n3),vec(n3*n3)
+character(*) filen
 
+write(stdout,*) 'Reading <',trim(filen),'>'
+open(newunit=io,file=filen)
+  read(io,*) nat,x
+  if(nat*3/=n3) call error('wrong hessian dimension!')
+  k=1
+  do i=1,n3*n3/3
+    read(io,*) vec(k),vec(k+1),vec(k+2)
+    k=k+3
+  enddo
+  k=0
+  do i=1,n3
+   do j=1,n3
+    k=k+1
+    h(i,j)=vec(k)
+   enddo
+  enddo
+close(io)
+call printmat(6,n3,n3,h,'H(PSI4)')
+end subroutine
 
 
 subroutine readORCAhess(n3,h,filen)
@@ -470,7 +499,7 @@ character(80) a
 logical da
 
 inquire(file=filen,exist=da)
-if(.not.da) print*,'cannot read ',filen,' (ERROR)'
+if(.not.da) write(stdout,*) 'cannot read ',filen,' (ERROR)'
 
 write(stdout,*) 'Reading <',trim(filen),'>'
 nval=6 ! 
@@ -480,17 +509,18 @@ c=mod(n3,6)
      read(33,'(a)',end=201)a
      if(index(a,'$hessian').ne.0) then
      read(33,*,end=201) d ! dimension
+     ! print*, d,n3
      if(d.ne.n3) stop 'wrong hessian dimension!'
      ! check orca30 vs orca40 hessian
      read(33,'(a)') a
      read(33,'(a)') a
-    !  print*, trim(a),len(trim(a))
+     print*, trim(a),len(trim(a))
      if(len(trim(a))>77) nval=5
      backspace(33)
      backspace(33)
      j=0
      do k=1,int(n3/nval)
-         read(33,'(a)',end=201)a ! legend
+         read(33,'(a)',end=201) a ! legend
          do i=1,n3
            read(33,*) x,(h(i,l),l=1+j,nval+j)
          enddo
@@ -522,7 +552,7 @@ character(120) a
 logical da
 
 inquire(file=filen,exist=da)
-if(.not.da) print*,'cannot read ',filen,' (ERROR)'
+if(.not.da) write(stdout,*) 'cannot read ',filen,' (ERROR)'
 
 write(stdout,*) 'Reading <',trim(filen),'>'
 h=99
@@ -667,7 +697,7 @@ close(123)
 !           in units of the electron charge)
 
 pc=pc/18.2223_r8
-print*,pc(1:5)
+! write(stdout,*) pc(1:5)
 
 !if(iat(1)==0) stop 'something went wrong in readamber'
 
@@ -931,6 +961,7 @@ end subroutine
 ! make scrdir in specified path
 subroutine para_scrdir2(basepath)
 use progs, only: scrdir
+use fiso, only: stdout
 implicit none
 integer pid,getpid
 character(*) basepath
@@ -944,7 +975,7 @@ write(spid,*) pid
 call get_environment_variable('PWD',pwd)
 
 write(scrdir,'(a)') '/'//trim(basepath)//'/xopt-scr-'//trim(adjustl(spid))
-print*, 'scratch name: ', trim(scrdir)
+write(stdout,*) 'scratch name: ', trim(scrdir)
 aa='mkdir '//trim(scrdir)
 call system(aa)
 end subroutine
@@ -983,6 +1014,7 @@ end subroutine
 ! switch=1 : be verbose
 ! switch=2 : stop program & print error
 subroutine rmfile(string,switch)
+  use fiso, only : stdout
 implicit none
 logical da
 character(*) string
@@ -993,7 +1025,7 @@ if(da) then
  open(unit=1234, file=trim(string), status='old')
  close(1234, status='delete')
 if(switch==2) call error('user requested stop')
-if(switch==1) print*,'removing ', trim(string)
+if(switch==1) write(stdout,*) 'removing ', trim(string)
 endif
 
 
@@ -1018,10 +1050,11 @@ open(newunit=io,file=filen,status='old',position='rewind')
 open(newunit=iot,file='psi4.tmp',status='new')
 
 write(iot,'(a)') '# set by xopt'
-write(iot,'(a)') "qmol = qcdb.Molecule.init_with_xyz('xopt.xyz')"
-write(iot,'(a)') 'mol = geometry(qmol.create_psi4_string_from_molecule())'
+write(iot,'(a)') "with open('xopt.xyz','r') as f:"
+write(iot,'(a)') '   mol = psi4.core.Molecule.from_string(f.read())'
 write(iot,'(a)') 'mol.update_geometry()'
 write(iot,'(a)') "mol.reset_point_group('c1')"
+write(iot,'(a)') "activate(mol)"
 ! copy rest of the content
 do
  read(io,'(a)',end=666) aa
@@ -1155,7 +1188,7 @@ do i=1,nat
   endif
  enddo
 enddo
-print*, id
+write(io,*) id
 stop
 
 ! write

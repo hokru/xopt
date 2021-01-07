@@ -10,6 +10,10 @@ use popt
 use progs
 use timing
 use internals
+use IOconfig
+#ifdef OPENMP
+use omp_lib
+#endif
 implicit none
 integer istat
 character(255) infile
@@ -28,19 +32,24 @@ call setvbuf(6,1,0)
 call system_clock(count_rate=cr) ! count rate, once is enough
 call progtime_start() ! end timing
 
+! set defaults
+call loaddef()
+! control options
+call eval_options(infile)
+
+! output file handling
+if(do_output) then
+  stdout=2222
+  open(stdout,file=trim(output_name))
+endif
+
 ! header
 call head()
 
-call message_head('* loading options *')
-! load defaults
-call loaddef()
-! load user config defaults
+! load user config for programs
 call loadrc()
-! control options
+
 call rcontrol()
-call eval_options(infile)
-
-
 
 if(.not.do_md) newhess=.true.
 if(do_dvv) then
@@ -69,14 +78,14 @@ allocate(iat(nat),stat=istat)
 if(freeze) allocate(ifrez(nat),stat=istat)
 
 if(restrain) then
- allocate(irest_vol(10,3),stat=istat)
- allocate(irest_atom(maxrestr),stat=istat)
- allocate(irest_bond(maxrestr,2),stat=istat)
- allocate(irest_ang(maxrestr,3),stat=istat)
- allocate(irest_dihed(maxrestr,4),stat=istat)
- allocate(irest_konst(maxrestr,5),stat=istat)
- allocate(val0(4*maxrestr),stat=istat)
- allocate(eneR(4*maxrestr),stat=istat)
+  allocate(irest_vol(10,3),stat=istat)
+  allocate(irest_atom(maxrestr),stat=istat)
+  allocate(irest_bond(maxrestr,2),stat=istat)
+  allocate(irest_ang(maxrestr,3),stat=istat)
+  allocate(irest_dihed(maxrestr,4),stat=istat)
+  allocate(irest_konst(maxrestr,5),stat=istat)
+  allocate(val0(4*maxrestr),stat=istat)
+  allocate(eneR(4*maxrestr),stat=istat)
 endif
 
 
@@ -87,6 +96,10 @@ if(istat.ne.0) call error('allocation error: Hessian')
 call tmolrd(infile,.true.,.false.)
 if(debug) write(stdout,*) 'tmolrd done'
 xyz0=xyz
+
+#ifdef OPENMP
+call omp_set_num_threads(nomp)
+#endif
 
 ! print info
 call p_info
@@ -120,71 +133,72 @@ write(stdout,'(a)') ''
 
 ! initial Hessians
 if(restart) then
-    newhess=.false.
+  newhess=.false.
 ! This is broken for some reason?!
-    inquire(file='xopt.hess.restart',exist=da)
-    if(freeze) then
-     call warning('careful with restarts and $freeze. potentially incomplete Hessian.')
-    endif
-    if(da) then
-        call readbin(nat3,chess,'xopt.hess.restart')
-    else
-        call exclaim('old hessian not found, making new.')
-        newhess=.true.
-    endif
+  inquire(file='xopt.hess.restart',exist=da)
+  if(freeze) then
+    call warning('careful with restarts and $freeze. potentially incomplete Hessian.')
+  endif
+  if(da) then
+    call readbin(nat3,chess,'xopt.hess.restart')
+  else
+    call exclaim('old hessian not found, making new.')
+    newhess=.true.
+  endif
 endif
 if(readHess) then
-    newhess=.false.
-    call checkhess(hessname,istat)
-    if(istat==1) call rdhess(nat3,chess,hessname) ! TM
-    if(istat==2) call readORCAhess(nat3,chess,hessname) ! ORCA
-    if(istat==3) call readG09hess(nat3,chess,hessname) ! G09
+  newhess=.false.
+  call checkhess(hessname,istat)
+  if(istat==1) call rdhess(nat3,chess,hessname)       ! TM
+  if(istat==2) call readORCAhess(nat3,chess,hessname) ! ORCA
+  if(istat==3) call readG09hess(nat3,chess,hessname)  ! G09
+  if(istat==4) call readPSI4hess(nat3,chess,hessname) ! PSI4
 endif
 if(newhess) then
-    call status1(timer)
-    call message_head('* initial Hessian *')
-    call getHess
-    call status2(timer)
+  call status1(timer)
+  call message_head('* initial Hessian *')
+  call getHess
+  call status2(timer)
 endif
 
 
 if(d3hess) then
-    call status1(timer)
-    call message_head('* numerical D3 Hessian *')
-    call HcartD3(nat,iat,xyz,chess)
-    call status2(timer)
+  call status1(timer)
+  call message_head('* numerical D3 Hessian *')
+  call HcartD3(nat,iat,xyz,chess)
+  call status2(timer)
 endif
 
 if(debug.and.nat<=50) call printmat(stdout,nat3,nat3,chess,'initial H(cart)')
 
 ! select minimzer or MD
 select case(iopt) ! cartesians
- case(11:19)
+  case(11:19)
     if(newhess) deallocate(hdiag,B)
     call copt
- case(21:29,99) ! normal coords
+  case(21:29,99) ! normal coords
     if(newhess) deallocate(hdiag,B)
     call getanc
     call ancopt()
-case(31:39)  ! internals
-  nvar=0
+  case(31:39)  ! internals
+    nvar=0
+  call exclaim("internal coordinates are still experimental!")
   call intopt()
- case(666) ! gradient only
-  call getgrad
-  write(stdout,'(a)')' writing .XOPT '
-  open(unit=331,file='.XOPT')
-  write(331,*) energy
-  do i=1,nat
-    write(331,'(3E22.13)')grad(1,i),grad(2,i),grad(3,i)
-  enddo
-
+  case(666) ! gradient only
+    call getgrad
+    write(stdout,'(a)')' writing .XOPT '
+    open(unit=331,file=hidden_xopt)
+    write(331,*) energy
+    do i=1,nat
+      write(331,'(3E22.13)')grad(1,i),grad(2,i),grad(3,i)
+    enddo
  ! MD section
- case(900)
+  case(900)
    write(stdout,*) 'EXPERIMENTAL MD SECTION'
   call runMD
  ! IRC
- case(800)
- call irc_driver()
+  case(800)
+    call irc_driver()
 end select
 
 ! final geometries
@@ -193,8 +207,8 @@ call message('writing final structure: xopt.opt')
 call wrxyz('xopt.opt')
 
 if(restrain) then
- open(unit=34,file='xopt.restrain.tmp',status='old')
- close(34,status='delete')
+  open(unit=34,file='xopt.restrain.tmp',status='old')
+  close(34,status='delete')
 endif
 
 call progtime_end() ! end timing
@@ -210,4 +224,8 @@ call message('normal program termination')
 call message(' ')
 call message(' ')
 
+! output file handling
+if(do_output) then
+  close(stdout)
+endif
 end program xopt

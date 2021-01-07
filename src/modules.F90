@@ -1,8 +1,9 @@
 module fiso
+
 ! wrapper around iso_fortran_env
-#ifdef GNU
+#if defined(GNU) || defined(INTEL)
  use, intrinsic :: iso_fortran_env, only : &
-     stdin=> input_unit, stdout=>output_unit,stderr=>error_unit, & ! I/O units, replaces non-def 0,5,6
+     stdin=> input_unit, stdout_default=>output_unit,stderr=>error_unit, & ! I/O units, replaces non-def 0,5,6
       i8=>INT64,i4=>INT32               , & 
       compiler_version                            ! nerdy info
 ! IEEE 754
@@ -11,7 +12,9 @@ module fiso
  integer, parameter :: qp = SELECTED_REAL_KIND(33,4931)
 
  integer, parameter :: io_debug=1111
-#elif GNU_LEGACY # 4.5
+ integer(r4) :: stdout
+#elif LEGACY
+! need for gcc <= 4.5
  integer, parameter :: r4 = SELECTED_REAL_KIND(6,37)
  integer, parameter :: r8 = SELECTED_REAL_KIND(15,307)
  integer, parameter :: qp = SELECTED_REAL_KIND(33,4931)
@@ -19,23 +22,26 @@ module fiso
  integer, parameter :: i4 = selected_int_kind(4)
  integer, parameter :: i8 = selected_int_kind(8)
  integer, parameter :: stdin =0
- integer, parameter :: stdout =6
+ integer, parameter :: stdout_default =6
  integer, parameter :: stderr= 5
  contains
  character(7) function compiler_version()
  implicit none
-  compiler_version='legacy gnu'
+ integer(r4) :: stdout
+ integer, parameter :: io_debug=1111
+  compiler_version='legacy'
  end function
 #else 
 ! for cases that do not have yet compiler_version like ifort 15 
   use, intrinsic :: iso_fortran_env, only : &
-       stdin=> input_unit, stdout=>output_unit,stderr=>error_unit & ! I/O units, replaces non-def 0,5,6
+       stdin=> input_unit, stdout_default=>output_unit,stderr=>error_unit & ! I/O units, replaces non-def 0,5,6
        ,i8=>INT64,i4=>INT32   
 ! IEEE 754
  integer, parameter :: r4 = SELECTED_REAL_KIND(6,37)
  integer, parameter :: r8 = SELECTED_REAL_KIND(15,307)
  integer, parameter :: qp = SELECTED_REAL_KIND(33,4931)
 
+ integer(r4) :: stdout
  integer, parameter :: io_debug=1111
  contains
  character(7) function compiler_version()
@@ -44,13 +50,13 @@ module fiso
  end function
 #endif
 
+
 !real(r8), parameter :: eins=1.0_r8,nul=0.0_r8
 !note:
 ! The iso fortran literals REAL64 etc only declared _storage size_, not precision
 ! Stevel Lionel (Dr Fortran) recommends selected_xx_kind
 ! https://software.intel.com/en-us/blogs/2017/03/27/doctor-fortran-in-it-takes-all-kinds
 end module fiso
-
 
 
 
@@ -78,7 +84,7 @@ real(r8), parameter :: amu2kg= 1.660538782E-27_r8   !  Atomic mass units to kg c
 real(r8), parameter :: hartree2J= 4.359744E-18_r8   ! hartree to Joule
 real(r8), parameter :: au2m = au2ang/(10.0_r8**10)  ! bohr to metre 
 
-real(r8), parameter :: w8Gb = 8.0_r8/(1024.0_r8**3)  ! 64bit word to Gb
+real(r8), parameter :: w8Gb = 8.0_r8/(1024.0_r8**3)  ! 64bit word to Gib
 end module
 
 module timing
@@ -139,6 +145,7 @@ end module
 !************************************************************
 
 module logic
+logical do_hmass
 logical echo ! printout
 logical debug
 logical relax !no calcs, just relax structure
@@ -182,6 +189,10 @@ logical do_float
 
 ! internals
 logical int_deloc
+
+! output file
+character(255) :: output_name
+logical :: do_output
 
 end module logic
 
@@ -589,5 +600,14 @@ real(r8), allocatable :: Ginv(:,:)
 ! real(r8), allocatable :: A_int(:,:)
 real(r8), allocatable :: inthess(:,:)
 
+integer, allocatable :: cn(:)
+
 end module internals
 
+
+module IOconfig
+  character(255) :: logger_scratch = ''
+  character(8),  parameter :: logger_xyz = 'xopt.log'
+  character(13), parameter :: logger_grad = 'xopt.grad.log'
+  character(5), parameter :: hidden_xopt = ".XOPT" ! unit 331
+end module IOconfig

@@ -4,7 +4,7 @@ use parm
 use logic
 use progs
 use constant, only: au2ang
-use fiso, only: r8
+use fiso, only: r8,stdout
 implicit none
 character(255) aa,bb
 character(255) aaa
@@ -64,6 +64,8 @@ endif
 
 if(xtb) then
   call system(trim(command_xtb))
+!  call xtbene(nat,energy,'xopt.job')
+!  call xtbgrad(nat,grad,'grad')
   call tmgrad(nat,grad,energy)  ! xtb writes TM gradient/energy file
   call cpfile('xopt.job','xopt.last','.')
   return
@@ -183,12 +185,12 @@ if(amber) then
   aa='rm -f forcedump.dat force.dat > /dev/null'
   call system (trim(aa))
   call wamber(nat3,xyz,'amber.rst')
-  if(APBS) then
-  aaa='sander.APBS -O -i '//trim(ambin)// &
-               ' -c amber.rst'// &
-               ' -p '//trim(ambtop)// &
-               ' -o '//trim(xjob)
-  endif
+  ! if(APBS) then
+  ! aaa='sander.APBS -O -i '//trim(ambin)// &
+  !              ' -c amber.rst'// &
+  !              ' -p '//trim(ambtop)// &
+  !              ' -o '//trim(xjob)
+  ! endif
   call system(trim(command_amber))
   !call wamber(nat3,xyz)
   call ambergrad(nat,grad,energy,apbs)
@@ -206,7 +208,7 @@ endif
 
 ! G A M E S S
 if(gamess) then
-  call IOgamess(trim(gmsin)//'.inp')
+!  call IOgamess(trim(gmsin)//'.inp')
   call system(trim(command_gms))
   call gmsgrad(nat,grad,energy,'xopt.job')
   call getd3gcp(nat,energy,grad)
@@ -252,6 +254,47 @@ close(io)
 
 end subroutine
 
+!*****************
+!* xTB  routines *
+!*****************
+subroutine xtbgrad(n,g,filen)
+use fiso, only: r8
+use strings
+implicit none
+integer n,i,io,j
+real(r8) g(3,n)
+character(255) aa
+character(*) filen
+
+open(newunit=io,file=filen)
+do i=1,n
+ do j=1,3
+   read(io,'(a)') aa
+   call str_parse(aa,2,g(j,i))
+ enddo
+enddo
+close(io)
+end subroutine
+
+subroutine xtbene(n,e,filen)
+use fiso, only: r8
+use strings
+implicit none
+integer n,i,io,j
+real(r8) e
+character(255) aa
+character(*) filen
+logical fstr
+
+open(newunit=io,file=filen)
+do 
+   read(io,'(a)',end=99) aa
+   if(fstr(aa,'total E'))  call str_parse(aa,4,e)
+enddo
+99 close(io)
+end subroutine
+
+
 
 !*****************
 !* PSI4 routines *
@@ -269,12 +312,11 @@ character(80) wx
 open(newunit=io,file=filen)
   do
    read(io,'(a)',end=666) aa
-   call lower_case(aa)
-   if(fstr(aa,'total energy =')) then
+   if(fstr(aa,'Total Energy =')) then
      call charXsplit(aa,wx,4)
      e=s2r(wx)
    endif
-   if(fstr(aa,'total gradient:')) then
+   if(fstr(aa,'Total Gradient:')) then
      read(io,'(a)') aa
      read(io,'(a)') aa
      do i=1,n
@@ -770,15 +812,25 @@ end subroutine
 subroutine egradfile(xnat,grad,e,fname)
 use fiso, only: r8
 implicit none
-integer i,xnat,io
+integer i,xnat,io,c
 character(*) fname
 real(r8) grad(3,xnat),e
+logical da
 
+inquire(file=fname, exist=da)
+if(.not.da) then
+  call error('missing file: '//fname)
+  return
+endif
 open(newunit=io,file=fname)
-read(io,*) e
+read(io,*,end=666) e
+c=0
 do i=1,xnat
-   read(io,*) grad(1:3,i)
+  c=c+1
+   read(io,*,end=666) grad(1:3,i)
 enddo
+666 continue
+if (c/=xnat) call error('incomplete gradient')
 close(io)
 end subroutine
 
@@ -791,7 +843,7 @@ end subroutine
 ! not used
 ! maybe switch on/off flags here?
 subroutine get_internal_numgrad(e,g)
-use fiso, only: r8
+use fiso, only: r8,stdout
 use parm, only: i,j,nat,iat,xyz,energy
 use logic, only: numgrad
 implicit none
@@ -802,7 +854,7 @@ step=0.005_r8
 xyz0=xyz
 numgrad=.false.
 do i=1,nat
-write(*,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', nat,']'
+write(stdout,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', nat,']'
  do j=1,3
    xyz(j,i)=xyz(j,i)+step
    call newxyz(nat,iat,xyz)
@@ -881,7 +933,7 @@ end subroutine
 ! usefull for CIopt calculations where you can get 2 states at once
 subroutine get_numgrad2(e1,e2,g1,g2)
 use parm, only: xyz,i,j,k,l,nat,iat
-use fiso, only: r8
+use fiso, only: r8,stdout
 !use logic
 use progs, only: command_gei
 implicit none
@@ -894,7 +946,7 @@ call system(trim(command_gei))
 call ene2(e1,e2)
 
 do i=1,nat
-write(*,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', nat,']'
+write(stdout,'(a,I2,a,I2,a)') 'gradient of atom [',i, ']/[', nat,']'
  do j=1,3
    xyz(j,i)=xyz(j,i)+step
    call newxyz(nat,iat,xyz) ! write new xopt.xyz

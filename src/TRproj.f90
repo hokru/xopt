@@ -60,7 +60,7 @@ real(r8) TR(nat*3,6)
 real(r8) hess(nat*3*(nat*3+1)/2)
 
 integer lwork,info
-real(r8) qwork,S(nat*3),U(nat*3,6),VT(6,6)
+real(r8) qwork(1),S(nat*3),U(nat*3,6),VT(6,6)
 real(r8), allocatable :: work(:)
 
 cema=xyz
@@ -92,12 +92,12 @@ enddo
 ! SVD -> U
 ! query lwork, allocate, do it
 call DGESVD('S','S', nat3, 6, TR , nat3, S, U, nat3, VT, 6, QWORK, -1, INFO )
-lwork=int(qwork)
+lwork=int(qwork(1))
 allocate(work(lwork))
 call DGESVD('S','S', nat3, 6, TR , nat3, S, U, nat3, VT, 6, WORK, lwork, INFO )
 deallocate(work)
 
-if(info.ne.0) stop 'SVD orthogonalization failed'
+if(info.ne.0) call error('SVD orthogonalization failed')
 ! nearest ortho mat U*Vt
 call matmult('N','N',nat3,6,6,u,vt,tr)
 ! call DGEMM('N','N',nat3,6,6,1.0d0,U,nat3,VT,6,0.0d0,TR,nat3)
@@ -112,11 +112,10 @@ subroutine projMat(n,m,pmat,fmat)
 ! apply orthogonal projection pmat to fmat
 use fiso, only: r8
 implicit none
-integer i,j,k
-!real(8) scrnm(n,m),scrnn(n,n)
+integer :: i,j,k
 integer, intent(in) :: n,m
 real(r8), allocatable :: scrnm(:,:),scrnn(:,:)
-real(r8), intent(in):: pmat(n,m)
+real(r8), intent(in) :: pmat(n,m)
 real(r8), intent(inout) :: fmat(n*(n+1)/2)
 
 allocate(scrnm(n,m),scrnn(n,n))
@@ -128,23 +127,22 @@ call dgemm('n','t',n,n,m,1.0d0,scrnm,n,pmat,n,0.0d0,scrnn,n) !scrnn=scrnm*pmat'
 ! fmat=fmat-scrnn-scrnn'
 
 do i=1,n
- do j=1,i
-   k = i*(i-1)/2 + j
-   fmat(k) = fmat(k) - scrnn(i,j) - scrnn(j,i)
- end do
+  do j=1,i
+    k = i*(i-1)/2 + j
+    fmat(k) = fmat(k) - scrnn(i,j) - scrnn(j,i)
+  end do
 end do
 
-  call dgemm('t','n',n,m,n,1.0d0,scrnn,n,pmat,n,0.0d0,scrnm,n)
-  call dgemm('n','t',n,n,m,1.0d0,pmat,n,scrnm,n,0.0d0,scrnn,n)
+call dgemm('t','n',n,m,n,1.0d0,scrnn,n,pmat,n,0.0d0,scrnm,n)
+call dgemm('n','t',n,n,m,1.0d0,pmat,n,scrnm,n,0.0d0,scrnn,n)
 
 ! fmat=fmat+scrnn
 do i=1,n
- do j=1,i
-   k = i*(i-1)/2 + j
-   fmat(k) = fmat(k) + scrnn(i,j)
- end do
+  do j=1,i
+    k = i*(i-1)/2 + j
+    fmat(k) = fmat(k) + scrnn(i,j)
+  end do
 end do
-
 
 deallocate(scrnm,scrnn)
 end subroutine

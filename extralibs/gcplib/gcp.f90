@@ -3999,7 +3999,7 @@ detlat=detlat-latt(3,1)*latt(2,2)*latt(1,3)-latt(3,2)*latt(2,3)*latt(1,1)-latt(3
 
 if(detlat.eq.0) then
    write(*,*) ' Error: singular cell matrix'
-   stop'Singular cellmatrix'
+   stop 'Singular cellmatrix'
 end if
 ilat(1,1)=latt(2,2)*latt(3,3)-latt(3,2)*latt(2,3)
 ilat(1,2)=latt(1,3)*latt(3,2)-latt(3,3)*latt(1,2)

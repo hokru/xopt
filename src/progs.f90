@@ -18,6 +18,8 @@ write(stdout,*) " *                  +                                          
          write(stdout,*) " *  Gaussian                                                   *"
     elseif(amber) then
          write(stdout,*) " *  sander                                                     *"
+    elseif(gei) then
+         write(stdout,*) " *  custom interface                                  *"
     elseif(numgrad) then
            write(stdout,*) " * using parallel numerical gradients                             *"
          if(nproc>1) then
@@ -69,8 +71,12 @@ return
 endif
 
 
+!************************
+!* xTB                  *
+!************************
 if(xtb) then
 write(stdout,*) " * INTERNAL XTB INTERFACE *"
+call rmfile('gradient',1)
 prog_flags=' -grad '//trim(prog_flags)
 command_xtb=trim(scall_xtb)//' '//trim(xyzfile)//trim(prog_flags)//redir//xjob
 write(stdout,'(4x,a)') 'XTB system call:'
@@ -170,12 +176,13 @@ endif
 !****************
 if(tm.or.tmhuge) then
 write(stdout,*) " * INTERNAL TURBOMOLE INTERFACE *"
+call rmfile('gradient',1)
+call rmfile('energy',1)
 call get_environment_variable('TURBODIR',aa)
 write(stdout,'(4x,a)') 'TM install:'
 write(stdout,'(4x,a)') trim(aa)
 write(stdout,'(4x,a)') ''
 
-!if(tmcc) write(stdout,*) " *       using dscf/ricc2           *"
  call system('actual -r >/dev/null')
  tmri=.false.
  write(stdout,*)' Checking control file for $rij'
@@ -201,43 +208,66 @@ endif
 !* gaussian09   *
 !****************
 if(gaus) then
-write(stdout,*) " * INTERNAL GAUSSIAN09 INTERFACE  *"
-command_gaus=trim(scall_gaus)//' g.in '//trim(xjob)
-write(stdout,'(4x,a)') 'Gaussian system call:'
-write(stdout,'(4x,a)') trim(command_gaus)
-write(stdout,'(4x,a)') ''
-return
+  write(stdout,*) " * INTERNAL GAUSSIAN09 INTERFACE  *"
+  command_gaus=trim(scall_gaus)//' g.in '//trim(xjob)
+  write(stdout,'(4x,a)') 'Gaussian system call:'
+  write(stdout,'(4x,a)') trim(command_gaus)
+  write(stdout,'(4x,a)') ''
+  return
 endif
 
+!****************
+!* AMBER/SANDER *
+!****************
 if(amber) then
-!call system('cp amber.crd amber.rst')
-write(stdout,*) " * INTERNAL AMBER INTERFACE  *"
-command_amber=trim(scall_amber)
-write(stdout,'(4x,a)') 'Amber system call:'
-write(stdout,'(4x,a)') trim(command_amber)
-write(stdout,'(4x,a)') ''
-return
+  !call system('cp amber.crd amber.rst')
+  write(stdout,*) " * INTERNAL AMBER INTERFACE  *"
+  command_amber=trim(scall_amber)
+  write(stdout,'(4x,a)') 'Amber system call:'
+  write(stdout,'(4x,a)') trim(command_amber)
+  write(stdout,'(4x,a)') ''
+  return
 endif
 
+!****************
+!*      PSI4    *
+!****************
 if(psi4) then
-call IOpsi4('psi4.in')
-write(stdout,*) " * INTERNAL PSI4 INTERFACE  *"
-command_psi4=trim(scall_psi4)//' psi4.in '//trim(xjob)
-write(stdout,'(4x,a)') 'PSI4 system call:'
-write(stdout,'(4x,a)') trim(command_psi4)
-write(stdout,'(4x,a)') ''
-return
+  call IOpsi4('psi4.in')
+  write(stdout,*) " * INTERNAL PSI4 INTERFACE  *"
+  prog_flags=' '//trim(prog_flags)
+  command_psi4=trim(scall_psi4)//trim(prog_flags)//' psi4.in '//trim(xjob)
+  write(stdout,'(4x,a)') 'PSI4 system call:'
+  write(stdout,'(4x,a)') trim(command_psi4)
+  write(stdout,'(4x,a)') ''
+  return
 endif
 
 
+!****************
+!*  NWCHEM      *
+!****************
 if(nwchem) then
-call IOnwchem('nw.in')
-write(stdout,*) " * INTERNAL NWCHEM INTERFACE  *"
-command_nwchem=trim(scall_nwchem)
-write(stdout,'(4x,a)') 'NWCHEM system call:'
-write(stdout,'(4x,a)') trim(command_nwchem)
-write(stdout,'(4x,a)') ''
-return
+  call IOnwchem('nw.in')
+  write(stdout,*) " * INTERNAL NWCHEM INTERFACE  *"
+  command_nwchem=trim(scall_nwchem)
+  write(stdout,'(4x,a)') 'NWCHEM system call:'
+  write(stdout,'(4x,a)') trim(command_nwchem)
+  write(stdout,'(4x,a)') ''
+  return
+endif
+
+!****************
+!*   GAMESS     *
+!****************
+if(gamess) then
+  call IOgamess(trim(gmsin)//'.inp')
+  write(stdout,*) " * INTERNAL GAMESS INTERFACE  *"
+  command_gms=trim(scall_gms)
+  write(stdout,'(4x,a)') 'GAMESS system call:'
+  write(stdout,'(4x,a)') trim(command_gms)
+  write(stdout,'(4x,a)') ''
+  return
 endif
 
 
@@ -262,21 +292,36 @@ implicit none
 character(*) fname
 integer hlogic
 character(120) aa
+integer nstrings
 
 ! hlogic:
 ! 1 = TM (default)
 ! 2 = ORCA
 ! 3 = G09
+! 4 = PSI4 (not working!)
 
-hlogic=1
+hlogic=-1
 open(11,file=fname)
 do
   read(11,'(a)',end=999) aa
-  if(index(aa,'orca_hessian_file').ne.0) hlogic=2
-  if(index(aa,'Force constants in Cartesian coordinates:').ne.0) hlogic=3
+  call cstring(aa,nstrings)
+  if(index(aa,'$hessian').ne.0) then
+    hlogic=1
+    exit
+  elseif(index(aa,'$orca_hessian_file').ne.0) then
+   hlogic=2
+   exit
+  elseif(index(aa,'Force constants in Cartesian coordinates:').ne.0) then
+   hlogic=3
+   exit
+  endif
+  ! if(nstrings==2) hlogic=4 ! not 100% safe
 enddo
 999 close(11)
 if(hlogic==1) write(stdout,*) ' Found TM hessian'
 if(hlogic==2) write(stdout,*) ' Found ORCA hessian'
 if(hlogic==3) write(stdout,*) ' Found Gaussian09 hessian'
+! if(hlogic==4) write(stdout,*) ' Found PSI4 hessian'
+
+if(hlogic<0) call error('Could not identify hessian type')
 end

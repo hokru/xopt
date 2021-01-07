@@ -8,18 +8,18 @@ use logic
 use popt
 use progs
 implicit none
-integer iter,c
-integer nvar1,iflag
+integer :: iter,c
+integer :: nvar1,iflag
 real(r8), allocatable :: displ(:),anc(:),oldanc(:)
-real(r8) dE,gmax,maxdipl,dnorm,oldE,oldG(nvar),oldD(nvar)
-real(r8) Lam,oldL
-logical EE,GG,GM,DM,DOupdate,remake,downscale
-real(r8) DNRM2,echange
-real(r8) hold(nvar*(nvar+1)/2)
-real(r8) time
+real(r8) :: dE,gmax,maxdipl,dnorm,oldE,oldG(nvar),oldD(nvar)
+real(r8) :: Lam,oldL
+logical :: EE,GG,GM,DM,DOupdate,remake,downscale
+real(r8) :: DNRM2,echange
+real(r8) :: hold(nvar*(nvar+1)/2)
+real(r8) :: time
 ! DIIS
-real(r8) ogint(nvar,idiis),oanc(nvar,idiis)
-integer ind
+real(r8) :: ogint(nvar,idiis),oanc(nvar,idiis)
+integer :: ind
 ! TS
 real(r8), allocatable :: hmode(:)
 
@@ -132,18 +132,15 @@ if (debug) write(stdout,'(a)') '  done'
 
 
 if(debug) call debug1('Hessian update',time)
- ! update hint hessian
- call Hupdate(iter,chess,hint,nvar,gint,oldG,displ,0,DOupdate)
- ! make new cart. chess
- call hint2xyz(nvar,nat3,hint,chess,b)
-!  print*,chess(1:6,1:2)
- DOupdate=.true.
+! update hint hessian
+call Hupdate(iter,chess,hint,nvar,gint,oldG,displ,0,DOupdate)
+! make new cart. chess
+call hint2xyz(nvar,nat3,hint,chess,b)
+DOupdate=.true.
 if(debug) call debug2(time)
 
 
-
 ! call hessdamp(nvar,hint,hold,gnorm)
-
 
 ! GDIIS for interpolated gradient
 ! something is wrong
@@ -158,33 +155,32 @@ if(debug) call debug2(time)
 !     endif
 ! endif
 
-
 if(tsopt) then
   if (debug) write(stdout,'(a)',advance="no") 'mode following ...'
   iflag=1
   if(iter==1) then
     iflag=0
     write(stdout,'(2x,''| EF optimization: Following mode'',i2)') tsmode
-     call eigovl_int(hint,nvar,hmode,tsmode,iflag)
+    call eigovl_int(hint,nvar,hmode,tsmode,iflag)
   else
-    ! call eigovl_int(hint,nvar,hmode,tsmode,iflag)
+    call eigovl_int(hint,nvar,hmode,tsmode,iflag)
   endif
   if (debug) write(stdout,'(a)') '  done'
 endif
 
 if(debug) call debug1('step estimate (RFO/CG)',time)
 select case(iopt)
- case(21,31)
+  case(21,31)
     if(tsopt) mode=tsmode+1 ! +1 because of augmented Hessian
     if(nat>2000.or.do_float) then
-        call FastgetLambdaRFO(displ,mode,Lam) ! "no" gain
+      call FastgetLambdaRFO(displ,mode,Lam) ! "no" gain
     else
-          call getLambdaRFO(displ,mode,Lam)
+      call getLambdaRFO(displ,mode,Lam)
     endif
  case(22,32)
     if(tsopt) mode=tsmode+1 ! +1 because of augmented Hessian
     call getLambdaSIRFO(displ,mode,Lam)
- case(23,33)
+ case(23,33) ! experimental
     ! reset every 10 iters
     if(iter==1.or.mod(iter,10)==0) then
     displ=-gint
@@ -193,7 +189,7 @@ select case(iopt)
     endif
       DOupdate=.false.
       lam=0.0_r8
- case(24)
+ case(24) ! experimental
     call conjgrad(nvar,gint,oldg,oldD,displ)
     call getLambdaRFO(oldD,mode,Lam)
   displ=0.9_r8*displ+oldD*0.1_r8
@@ -210,11 +206,8 @@ select case(iopt)
 end select
 if(debug) call debug2(time)
 
-
 ! check step
-
 do i=1,nvar
-! if(abs(displ(i))> 4*maxd)  call error('unreliable large displacement!')
    if(displ(i) > maxd) displ(i)= maxd
    if(displ(i) < -maxd) displ(i)= -maxd
 enddo
@@ -224,7 +217,7 @@ dnorm=dnrm2(nvar,displ,1)
 if(iter>1.and..not.tsopt) then
   if((oldL/lam)<0.1) then
   downscale=.true.
-   displ=displ*0.5_r8
+  displ=displ*0.5_r8
   endif
 endif
 dnorm=dnrm2(nvar,displ,1)
@@ -235,18 +228,12 @@ anc=anc+displ
 
 hold=hint
 
-open(unit=921,file="anc.debug",position='append')
-!open(unit=921,file="anc.debug")
-do i=1,nvar
-write(921,'(2(F15.7,2x))') displ(i),gint(i)
-!if( (displ(i)<0d0.and.gint(i)<0d0) ) print*, 'sign'
-!if( (displ(i)>0d0.and.gint(i)>0d0) ) print*, 'sign'
-! write(921,*) anc(i),displ(i),gint(i)
-! write(*,*) anc(i),displ(i),gint(i)
-enddo
-write(921,*) ''
-close(921)
-
+! open(unit=921,file="anc.debug",position='append')
+! do i=1,nvar
+!   write(921,'(2(F15.7,2x))') displ(i),gint(i)
+! enddo
+! write(921,*) ''
+! close(921)
 
 EE=.false.
 GG=.false.
@@ -257,44 +244,35 @@ if(gnorm<=gconv) GG=.true.
 if(gmax<=maxgrad) GM=.true.
 if(maxdipl<=dconv) DM=.true.
 
-
-
-
 if(iter==1) then
- dE=0.0_r8
- echange=0.0_r8
+  dE=0.0_r8
+  echange=0.0_r8
 endif
-!  call pciter(iter,energy,0d0,gnorm,gmax,dnorm,maxdipl,Lam,EE,GG,GM,DM,echange)
-! else
- call pciter(iter,energy,dE,gnorm,gmax,dnorm,maxdipl,Lam,EE,GG,GM,DM,echange)
-if((abs(dE)<1e-12_r8).and.(.not.amber).and.(.not.iter==1)) call error('ERROR: no energy change!')
-! endif
 
+call pciter(iter,energy,dE,gnorm,gmax,dnorm,maxdipl,Lam,EE,GG,GM,DM,echange)
+if((abs(dE)<1e-12_r8).and.(.not.amber).and.(.not.iter==1)) call error('ERROR: no energy change!')
 
 ! predicted energy change
 call Echange2_int(nvar,gint,hint,displ,echange)
- ! print*, 1d0-(Echange/dE)
 
-!if(downscale) then
-!  print*,' unreliable step! scaling down displacements'
-!endif
+if(downscale) then
+ write(stdout,*) ' unreliable step detected! scaling down displacements'
+endif
 
 select case(iconv)
- case default
- case(4) ! all 4 thres reached (default)
-  if(EE.and.GG.and.GM.and.DM) then
-   goto 421 ! success
-  endif
- case(2) ! only energy and gradient
-  if(EE.and.GG) then
-   goto 421 ! success
-   return
-  endif
- case(1) ! only energy
-  if(EE) then
-   goto 421 ! success
-   return
-  endif
+  case default
+  case(4) ! all 4 thres reached (default)
+    if(EE.and.GG.and.GM.and.DM) then
+      goto 421 ! success
+    endif
+  case(2) ! only energy and gradient
+    if(EE.and.GG) then
+      goto 421 ! success
+    endif
+  case(1) ! only energy
+    if(EE) then
+      goto 421 ! success
+    endif
 end select
 
 

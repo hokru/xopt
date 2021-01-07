@@ -1,0 +1,55 @@
+# This is a basic workflow to help you get started with Actions
+
+name: OSX (homebrew)
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on:  macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        gcc_v: [ 10 ] # Version of GFortran we want to use.
+        blas: [native, openblas] 
+    env:
+      FC: gfortran-${{ matrix.gcc_v }}
+      GCC_V: ${{ matrix.gcc_v }}
+
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+    
+# MacOS         
+    - name: setup homebrew
+      run: brew install gcc@${GCC_V} openblas || brew upgrade gcc@${GCC_V} openblas || true
+
+    - name: Configure with CMake (GCC + Accelerate)
+      if: contains( matrix.blas, 'native')
+      run: |
+        cmake -H. -Bobjdir -DCMAKE_BUILD_TYPE=Release -DBLAS=Generic
+
+    - name: Configure with CMake (GCC + OpenBLAS)
+      if: contains( matrix.blas, 'openblas')
+      run: |
+        cmake -H. -Bobjdir -DCMAKE_BUILD_TYPE=Release -DBLAS=OpenBLAS  -DCMAKE_Fortran_COMPILER=${FC}
+
+    - name: Build and compile
+      run: cmake --build objdir --verbose
+
+    # Runs a single command using the runners shell
+    - name: smoke test binary with help
+      if: contains( matrix.compiler, 'gcc') || contains( matrix.os, 'macos')
+      run: |
+        ./objdir/xopt -h 

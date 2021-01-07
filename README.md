@@ -1,52 +1,40 @@
 
 # XOPT - an eXternal OPTimizer
+![CI](https://github.com/hokru/xopt/workflows/CI/badge.svg)
 
 ## Purpose
 The goal is to proving a robust optimizer for quantum chemical and semi-empirical method
 that is suitable for large and complex molecules.
 
+## Notes/Versions
+The current version (2.0 beta) is under continuous development and no warranty for correctness can be given. It is a significant extension and re-write of the legacy version published in H. Kruse, J. Sponer PCCP, 2015,17, 1399-1410 that introduced the approach of restrained optimizations for biomolecules.
+
+## build
+Standard way of building is using cmake:
+```
+cmake -H. -Bobjdir <flags>
+cmake --build objdir
+```
+
+Available compiler flags are:
+* `-DBLAS=MKL/OpenBLAS/Generic`
+ Compiler can be set via `$FC` variable `-DCmake_Fortran_COMPILER=` flag or using one of the following flags
+* -DGNU=ON (gfortran)
+* -DINTEL=ON (ifort)
+* -DPGI=ON (pgfortran)
+
+One can help the BLAS/LAPACK autodetection setting the MATHROOT variable in the shell.
+
+Alternatively, building via Makefile is still possible (see configs/Makefile.xxx for examples).
+
 ## Manual
-Online documentation is unfinished. Check `Manual.pdf` for a somewhat recent version. Execute `xopt -h` for command line options.
-[![Documentation Status](https://readthedocs.org/projects/xopt/badge/?version=latest)](http://xopt.readthedocs.io/en/latest/?badge=latest)
+Execute `xopt -h` for command line options.
+Online documentation (unfinished): [![Documentation Status](https://readthedocs.org/projects/xopt/badge/?version=latest)](http://xopt.readthedocs.io/en/latest/?badge=latest)
+Check `Manual.pdf` for complimentary options.
+
 
 ## customatization
 getgrad.f90 contains most of the system calls which might need adaption to your work environment.
 Most system calls can also be set in `$HOME/.xoptrc`. 
 
-## Notes/Versions
-The current version (2.0 beta) is under continuous development and no warranty for correctness can be given.
-
-The legacy version (v1.0.1) is published in H. Kruse, J. Sponer PCCP, 2015,17, 1399-1410. 
-
-## Capabilities
-
-Coordinate systems:
-- approx. normal coordinates
-- cartesian "
-- internal primitive "
-
-Hessian Updates:
-- modified SG1-BFGS
-- ...
-
-Step determination:
-- RFO
-- SI-RFO
-- conj. gradient (cg)
-- RFO-cg mixture
-
-Interfaces:
-- Turbomole
-- ORCA
-- Amber
-- mopac
-- 
-
-Constraints/Restraints:
-- cartesian space constraints
-- restrained primititves (form: U(x)=k(x)^2, x=bond/angle/torsion deviation)
-
-
-
-
-
+See also the online documentation.

@@ -1,17 +1,15 @@
 subroutine getanc
 ! take Hessian and make normal coordinates
-use fiso, only: r8,stdout
-use parm
-use popt
-use logic
-use timing, only: timer
+  use fiso, only: r8,stdout
+  use parm
+  use popt
+  use logic
+  use timing, only: timer
 implicit none
-integer pmax
+integer :: pmax
 real(r8), allocatable :: e(:),h(:,:),tr(:)
-real(r8) hmax,damp,edum,freqcm
-! real(8) D(nat3*(nat3+1)/2)
-
-real(r8) time
+real(r8) :: hmax,damp,edum,freqcm
+real(r8) :: time
 
 call status1(timer)
 call message_head('Generating normal coordinates')
@@ -26,7 +24,7 @@ h=0_r8
 
 
 if(nat>4) then
-   pmax=6
+  pmax=6
 else
   pmax=int(nat3/2)
 endif
@@ -59,12 +57,15 @@ enddo
 
 ! mass-weight 
 ! if(tsopt) call Hmass(h,'noproject')
+if (do_hmass) then
+ call Hmass(h,'noproject')
+endif
 
 if(debug) call debug1('DIAG',time)
 ! if(nat>2000) then
   ! call DiagSM3(nat3,h,e,1e-10_r8)
 ! else
-  call DiagSM(nat3,h,e)
+call DiagSM(nat3,h,e)
 ! endif
 if(debug) call debug2(time)
 
@@ -85,33 +86,32 @@ call status2(timer)
 write(stdout,'(2x,a,I5)') 'degrees of freedom(anc) : ',nvar
 write(stdout,'(a)') ''
 if(nat>2) then
- if(nvar/=nat3-6) then
-  call exclaim ('possible incomplete Hessian!')
-  write(*,'(2x,a,I5)') 'expected: degrees of freedom(3N-6) : ',nat3-6
-  write(*,'(a)') ''
- endif
+  if(nvar/=nat3-6) then
+    call exclaim ('possible incomplete Hessian!')
+    write(stdout,'(2x,a,I5)') 'expected degrees of freedom(3N-6) : ',nat3-6
+    write(stdout,'(a)') ''
+  endif
 endif 
 
 ! remove negative eigenvalues by shifting
+damp=0.0_r8
 if(Doshift) then
-  damp=0.0_r8
   if(.not.tsopt) then
-     damp = hmin - edum
-     if(damp.lt.0) damp = 0.0_r8
-     do i=1,nat3
-     if(abs(e(i)).gt.1.e-8_r8.and.abs(e(i)).lt.1.0_r8)then
+    damp = hmin - edum
+    if(damp.lt.0) damp = 0.0_r8
+    do i=1,nat3
+      if(abs(e(i)).gt.1.e-8_r8.and.abs(e(i)).lt.1.0_r8)then
         e(i) = e(i) + damp
-     endif
-     enddo
+      endif
+    enddo
   endif
-   write(*,'(2x,a,F8.2)') 'Hessian shift (cm-1) :', freqcm(damp)
-   write(*,'(2x,a)') 'lowest projected vib. freq (cm-1) of non mass-weighted input Hessian after shift:'
-   call printvib(nat3,e)
-Doshift=.false.
+  Doshift=.false.
 endif
+write(stdout,'(2x,a,F8.2)') 'Hessian shift (cm-1) :', freqcm(damp)
+write(stdout,'(2x,a)') 'lowest projected vib. freq (cm-1) of non mass-weighted input Hessian after shift:'
+call printvib(nat3,e)
 
 ! Now make Bmatrix
-
 allocate(b(nat3,nvar))
 allocate(hint(nvar*(nvar+1)/2))
 
@@ -119,25 +119,25 @@ b = 0_r8
 k = 0
 hint = 0_r8
 do i=nat3,1,-1
-if(abs(e(i)).gt.1.e-8_r8 .and.k.le.nvar)then
-  k=k+1
-  b(1:nat3,k)=h(1:nat3,i)
-      if(.not.tsopt)then
-        !  print*,k,k+k*(k-1)/2,i
-         hint(k+k*(k-1)/2)=max(e(i),hmin)
-         if(hint(k+k*(k-1)/2) > hmax) hint(k+k*(k-1)/2)=hmax
-      else
-         hint(k+k*(k-1)/2)=e(i)
-      endif
-   endif
+  if(abs(e(i)).gt.1.e-8_r8 .and.k.le.nvar)then
+    k=k+1
+    b(1:nat3,k)=h(1:nat3,i)
+    if(.not.tsopt)then
+      hint(k+k*(k-1)/2)=max(e(i),hmin)
+      if(hint(k+k*(k-1)/2) > hmax) hint(k+k*(k-1)/2)=hmax
+    else
+      hint(k+k*(k-1)/2)=e(i)
+    endif
+  endif
 enddo
 
+! sanity test
 if(k/=nvar) then
- print*,nvar,k
- call error('k/=nvar! error')
+  write(stdout,*) nvar,k
+  call error('k/=nvar! error')
 endif
 
-
+! remove elements from B if frozen cart. are used
 if(freeze) call freezeBmat
 
 call sort(nat3,nvar,hint,B)
@@ -154,11 +154,11 @@ subroutine gxyz2gint
 use fiso, only: r8
 use parm,only: nat,grad,gint,nvar,b
 implicit none
-integer i,j,k,l
+integer :: i,j,k,l
 
 gint = 0_r8
 do l=1,nvar
- k=0
+  k=0
   do i=1,nat
     do j=1,3
       k=k+1
@@ -171,11 +171,14 @@ end subroutine gxyz2gint
 
 subroutine int2xyz(xvar,cint,cart)
 ! colinear transformation of internals to cartesian
-use parm
-use fiso, only: r8
+  use parm, only: nat,b,i,j,k,xyz0
+  use fiso, only: r8
 implicit none
-integer xvar,m
-real(r8) xx,cart(3,nat),cint(xvar)
+integer, intent(in) :: xvar
+real(r8), intent(in) :: cint(xvar)
+real(r8), intent(out) :: cart(3,nat)
+integer :: m
+real(r8) :: xx
 
 cart = 0.0_r8
 do i=1,xvar
@@ -196,22 +199,16 @@ subroutine hint2xyz(nvar,nat3,hint,chess,b)
 ! HERE B is (nat3,nvar)
 use fiso, only: r8
 implicit none
-integer :: nvar,nat3
-real(r8) :: hint(nvar*(nvar+1)/2),b(nat3,nvar)
-real(r8) :: chess(nat3,nat3)
+integer, intent(in) :: nvar, nat3
+real(r8), intent(in) :: hint(nvar*(nvar+1)/2), b(nat3,nvar)
+real(r8), intent(out) :: chess(nat3,nat3)
 real(r8) :: bh(nvar,nat3)
 real(r8) :: h(nvar,nvar)
-!  M    N    K
-!  M,K * K,N
+
 call packM(nvar,h,hint,'unpack')
-! print*,h(1:5,1),b(1:5,1)
-! stop
-! call dgemm('N','T',nvar,nat3,nvar,1d0,h,nvar,b,nat3,0d0,bh,nvar)
-! call dgemm('N','N',nat3,nat3,nvar,1d0,b,nat3,bh,nvar,0d0,chess,nat3)
-! print*,chess(1:3,1)
 call matmult('n','t',nvar,nat3,nvar,h,b,bh)
 call matmult('n','n',nat3,nat3,nvar,b,bh,chess)
-! print*,chess(1:3,1)
+
 end subroutine
 
 
@@ -219,8 +216,8 @@ subroutine findlroot(n,e,el)
 ! find lowest, positive value in vector
 use fiso, only: r8
 implicit none
-integer n,i
-real(r8) e(n), el
+integer :: n,i
+real(r8) :: e(n), el
 el=HUGE(1_r8)
 do i=1,n
    if(abs(e(i)) .gt. 1.e-10_r8 .and. e(i) .lt. el ) el = e(i)
@@ -231,9 +228,9 @@ subroutine bsort(n,e)
 ! bubble sort the vector e
 use fiso, only: r8
 implicit none
-integer i,nn,n
-real(r8) e(n),tt
-logical order
+integer :: i,nn,n
+real(r8) :: e(n),tt
+logical :: order
 
 nn=n
 order=.false.
@@ -257,12 +254,11 @@ end subroutine
 integer function padr(i1,i2)
 ! address of the diagonal elements of a
 ! triagonal matrix (eg 1,3,6,10, etc)
-integer i1,i2,idum1,idum2
- idum1=max(i1,i2)
- idum2=min(i1,i2)
- padr=idum2+idum1*(idum1-1)/2
- return
-end
+integer :: i1,i2,idum1,idum2
+idum1=max(i1,i2)
+idum2=min(i1,i2)
+padr=idum2+idum1*(idum1-1)/2
+end function
 
 subroutine sort(nat3,nvar,hess,b)
 ! sort bmatrix
@@ -302,15 +298,12 @@ enddo
 
 end subroutine
 
-
-
-
 real(r8) function freqcm(e)
 ! convert frequency from au to cm
 use fiso, only: r8
 use constant, only : amu2au,au2cm
 implicit none
-real(r8) e
+real(r8), intent(in) :: e
 freqcm=au2cm*sign(sqrt(abs(e)),e)/sqrt(amu2au)
 end function
 

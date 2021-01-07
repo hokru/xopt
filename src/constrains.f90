@@ -325,7 +325,7 @@ endif
  di0=val0(i)
  di0grad=di360(di0)
 
-! write(*,'(2x,a,4I4,2x,F9.5,2x,2(F6.2,2x))') 'dihed ',aa,bb,cc,dd,irest_konst(ires,3),dihgrad,di0grad
+! write(stdout,'(2x,a,4I4,2x,F9.5,2x,2(F6.2,2x))') 'dihed ',aa,bb,cc,dd,irest_konst(ires,3),dihgrad,di0grad
 
 ! Check for the case that the torsion goes from the I to the IV quadrant and adjust accordingly
 ! we check for "greater/less equal" since we might want to reach 0 as target value
@@ -438,6 +438,7 @@ end subroutine
 subroutine dihed(xyz,aa,bb,cc,dd,dih,dihgrad)
 use constant, only: pi
 use fiso, only: r8
+use ieee_arithmetic
 implicit none
 integer aa,bb,cc,dd
 real(r8) b1(3),b2(3),b3(3),n1(3),n2(3)
@@ -463,7 +464,7 @@ real(r8) dih,dihgrad,xyz(3,*)
  diy=DOT_PRODUCT(um,un2)
 
  dih=atan2(diy,dix)
-
+ if(ieee_is_nan(dih)) stop 'NaN in torsions'
 !  Quadrant    Angle              sin    cos    tan
 !----------------------------------------------------
 !  I           0    < α < π/2     > 0    > 0    > 0
@@ -477,7 +478,7 @@ real(r8) dih,dihgrad,xyz(3,*)
 
 !  print*,atan2(1.0,1.0)*180.0d0/pi
 !  print*,atan2(-1.0,0.0) *180.0d0/pi
-
+!  print*, dih,dix,diy ,'DIH'
 ! give results in 0 to 360 degree
  if(dih<0.0_r8) dih=dih+pi*2
  dihgrad=dih*180.0_r8/pi

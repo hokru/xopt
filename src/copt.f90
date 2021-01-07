@@ -61,7 +61,7 @@ call touchlog
 
 ! project out trans/rot from input hessian
 !if(restart) then
-print*,' removing trans/rot from input hessian'
+write(stdout,*) ' removing trans/rot from input hessian'
 k=0
 do i=1,nat3
    do j=1,i
@@ -76,7 +76,7 @@ call packM(nat3,chess,hs,'unpack')
 
 if(tsopt) then
   call DiagSM(nat*3,chess,gdispl)
-  write(*,'(2x,a)') 'lowest projected vib. freq (cm-1) of non-weighted input Hessian after shift:'
+  write(stdout,'(2x,a)') 'lowest projected vib. freq (cm-1) of non-weighted input Hessian after shift:'
   call printvib(nat*3,gdispl)
   print*, 'Following ',tsmode,freqcm(gdispl(tsmode)),' cm-1 '
 endif

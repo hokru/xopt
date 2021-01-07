@@ -25,7 +25,7 @@ if(switch>=1)call packM(xvar,chess,hs,'pack')
 select case(iupdate)
  case default
  case(1)
-   call SR1BFGS(xvar,grad,oldG,displ,hs)
+  call SR1BFGS(xvar,grad,oldG,displ,hs)
  case(2)
   call SR1(xvar,grad,oldG,displ,hs)
  case(3)
@@ -277,7 +277,7 @@ implicit none
 integer i,j,xvar,ij
 real(r8) phi
 real(r8) xg(xvar),xgo(xvar),xdisp(xvar)
-real(r8) g(xvar),go(xvar),disp(xvar)
+real(r4) g(xvar),go(xvar),disp(xvar)
 real(r4) sdot,xx
 real(r8) h(xvar*(xvar+1)/2)
 real(r4) hf(xvar*(xvar+1)/2)
@@ -327,7 +327,7 @@ end subroutine fastSR1BFGS
 
 subroutine hessdamp(nvar,hess,hold,gnorm)
 ! Hessian damping (not used)
-use fiso, only: r8
+use fiso, only: r8,stdout
 implicit none
 integer nvar
 real(r8) Hd(nvar*(nvar+1)/2),hess(nvar*(nvar+1)/2),hold(nvar*(nvar+1)/2)
@@ -347,7 +347,7 @@ select case(ig)
  case(3)
  damp=0_r8
 end select
-write(*,'(''damping hessian: '',F6.3)') damp
+write(stdout,'(''damping hessian: '',F6.3)') damp
 Hd=(hess+damp*hold)/(1.0_r8+damp)
 hess=Hd
 end subroutine
