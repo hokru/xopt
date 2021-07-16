@@ -504,7 +504,6 @@ if(.not.da) write(stdout,*) 'cannot read ',filen,' (ERROR)'
 write(stdout,*) 'Reading <',trim(filen),'>'
 nval=6 ! 
 open(unit=33,file=filen)
-c=mod(n3,6)
   do
      read(33,'(a)',end=201)a
      if(index(a,'$hessian').ne.0) then
@@ -514,8 +513,8 @@ c=mod(n3,6)
      ! check orca30 vs orca40 hessian
      read(33,'(a)') a
      read(33,'(a)') a
-     print*, trim(a),len(trim(a))
      if(len(trim(a))>77) nval=5
+     c=mod(n3,nval)
      backspace(33)
      backspace(33)
      j=0
